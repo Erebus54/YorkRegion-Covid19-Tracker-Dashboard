@@ -832,7 +832,7 @@ About this Site
 *"Nothing in life is to be feared, it is only to be understood. Now is the time to understand more, so that we may fear less" - Marie Curie*  
 
 #### <b> Code </b>
-Codebase and dataset used to generate this web application are available on [Github](https://github.com/Erebus54/OntarioCovid19TrackerDashboard/tree/master/York%20Region%20Tracker).
+Codebase and dataset used to generate this web application are available on [Github](https://github.com/Erebus54/YorkRegion-Covid19-Tracker-Dashboard).
 
 
 #### <b> Sources </b> 
