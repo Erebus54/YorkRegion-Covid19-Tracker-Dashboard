@@ -6,7 +6,6 @@ YorkRegion-Covid19-Tracker-Dashboard
     -   [R](#r)
     -   [Data](#data)
         -   [Git](#git)
-        -   [Manually download repositories](#manually-download-repositories)
 -   [Running/Vieweing the App](#runningvieweing-the-app)
     -   [Website](#website)
 -   [About](#about)
