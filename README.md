@@ -31,7 +31,7 @@ Data
 This repository depends on one dataset from [Ontario Open Data](https://data.ontario.ca/). You need to set up a folder named 'datasets' in your directory, the datadownloader will find the folder and download the data to it. Your working directory must be pointing to the same folder where the 'datasets' subfolder is contained within. 
 Currently it is set up to read the contents of that folder and update by deleting and then writing the new files to disk. 
 
-The two datasets needed are as follows: 
+The dataset being downloaded and used is: 
 
 [status-of-covid-19-cases-in-ontario](https://data.ontario.ca/dataset/status-of-covid-19-cases-in-ontario) -- provides case specific data per region with demographic data, acquisition type, and outcome 
  
