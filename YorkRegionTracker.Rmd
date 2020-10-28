@@ -177,6 +177,7 @@ Row {.tabset .tabset-fade}
 -------------------------------------
 
 ```{r}
+#calculating the growth absolute and relative change in cases
 dailyPHU <- data.frame(TargetPHU %>% 
   dplyr::arrange(Case_Reported_Date) %>% 
   dplyr::group_by(Case_Reported_Date) %>% 
@@ -189,6 +190,15 @@ dailyPHU <- dailyPHU %>%
                 diff_growth = Cases - lag(Cases), 
                 growth_rate_pct = round((diff_growth/d_diff)/Cases * 100, 2)
   )
+
+#calculating rolling average 
+rolling.avg <- dailyPHU %>% 
+  dplyr::select(Case_Reported_Date, Cases) %>% 
+  dplyr::mutate(cp.7 = round(zoo::rollmean(Cases, k = 7, fill = NA),0),
+                cp.14 = round(zoo::rollmean(Cases, k = 14, fill = NA),0), 
+                cp.28 = round(zoo::rollmean(Cases, k = 28, fill = NA),0), 
+                cp.56 = round(zoo::rollmean(Cases, k = 56, fill = NA),0)
+)
 ```
 
 
@@ -222,18 +232,25 @@ plot_ly(data = dailyPHU,
         x = ~Case_Reported_Date, 
         y= ~Cases, 
         type = 'bar', name = 'Confirmed Positive',
-        marker = list(color = '#2858a6')) %>% 
+        marker = list(color = '#2858a6'), 
+        showlegend = F, 
+        
+        hoverinfo = 'text', 
+        text = ~paste(Case_Reported_Date, "<br>", 
+                      Cases, ' New Cases', sep = "")
+        
+        ) %>% 
+
   
   layout(title = "",
          yaxis = list(title = '<b>New Cases </b>'),
-         xaxis = list(title = ' '),
-         hovermode = "x unified") %>% 
-  
-  layout(paper_bgcolor='transparent') %>% 
-  
-  layout(xaxis = list(rangeselector = list(
-    buttons = buttons_time))) 
-  #layout(annotations = a)
+         xaxis = list(title = ' ', 
+                      rangeselector = list(buttons = buttons_time)),
+         hovermode = "x unified", 
+         
+         hoverlabel=list(bgcolor="black"), 
+         
+         paper_bgcolor='transparent')
 ```
 
 
@@ -243,15 +260,14 @@ plot_ly(data = dailyPHU,
 fig <- plot_ly(x = ~dailyPHU$Case_Reported_Date, y = ~dailyPHU$csum, type = 'scatter', mode = 'none', name = 'Total Cases', fill = 'tozeroy',
                fillcolor = '#2858a6')
 
-fig <- fig %>% layout(xaxis = list(title = ''),
+fig <- fig %>% layout(xaxis = list(title = '', 
+                                   rangeselector = list(buttons = buttons_time)),
                       yaxis = list(title = 'Cumulative Case'), 
-                      hovermode = "x unified")
-fig <- fig %>% 
-    layout(xaxis = list(rangeselector = list(
-    buttons = buttons_time
-  )))
-  
-fig
+                      hovermode = "x unified", 
+                      hoverlabel=list(bgcolor="black"), 
+                      
+                      paper_bgcolor='transparent')
+fig 
 ```
 
 ### <b> The Curve - Logarithmic Scale </b>
@@ -266,14 +282,6 @@ fig
 ### <b> Rolling Averages </b>
 
 ```{r}
-rolling.avg <- dailyPHU %>% 
-  dplyr::select(Case_Reported_Date, Cases) %>% 
-  dplyr::mutate(cp.7 = round(zoo::rollmean(Cases, k = 7, fill = NA),0),
-                cp.14 = round(zoo::rollmean(Cases, k = 14, fill = NA),0), 
-                cp.28 = round(zoo::rollmean(Cases, k = 28, fill = NA),0), 
-                cp.56 = round(zoo::rollmean(Cases, k = 56, fill = NA),0)
-)
-
 plot_ly(rolling.avg, x = ~Case_Reported_Date, y = ~cp.7, name = "7 Day Average",
         type = 'scatter', mode = 'lines', fill = 'tozeroy', line = list(width = 0.1)) %>% 
   
