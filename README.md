@@ -8,10 +8,6 @@ YorkRegion-Covid19-Tracker-Dashboard
         -   [Git](#git)
         -   [Manually download repositories](#manually-download-repositories)
 -   [Running/Vieweing the App](#runningvieweing-the-app)
-    -   [Within Rstudio](#within-rstudio)
-    -   [Command line](#command-line)
-        -   [Using R Console](#using-r-console)
-        -   [Using Shell](#using-shell)
     -   [Website](#website)
 -   [About](#about)
 
