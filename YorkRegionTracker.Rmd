@@ -550,7 +550,9 @@ fig <- plot_ly(acqBreakdown, labels = ~Case_AcquisitionInfo, values = ~n, type =
         textinfo = 'label+percent',
         insidetextfont = list(color = '#FFFFFF'),
         hoverinfo = 'text',
-        text = ~paste(n, ' cases'),
+        #text = ~paste(n, ' cases'),
+        text = ~paste(Case_AcquisitionInfo, '<br>', 
+                     format(n, nsmall = 0, big.mark = ","), ' cases', sep = ""),
         
         marker = list(colors = ~colors,
                       line = list(color = '#FFFFFF', width = 1)),
@@ -651,8 +653,8 @@ ages <- TargetPHU %>%
 genders <- TargetPHU %>% 
   dplyr::group_by(Client_Gender) %>% 
   dplyr::summarise(n = n()) %>% 
-  data.frame() %>% 
-  dplyr::filter(!Client_Gender == "")
+  dplyr::ungroup() %>% 
+  data.frame() 
 ```
 
 Row {.tabset .tabset-fade}
@@ -668,7 +670,7 @@ fig <- plot_ly(ages, labels = ~Age_Group, values = ~n, type = 'pie',
                textinfo = 'label+percent',
                insidetextfont = list(color = '#FFFFFF'),
                hoverinfo = 'text',
-               text = ~paste(n, ' cases'),
+               text = ~paste(format(n, nsmall = 0, big.mark = ","), ' Cases'),
                
                marker = list(colors = ~colors,
                              line = list(color = '#FFFFFF', width = 1)),
@@ -760,13 +762,12 @@ plot_ly(daily_ages, x = ~Case_Reported_Date, y = ~csum,
 ```{r}
 colors <- c('#c37ef0', "#54c3ff")
 
-
 fig <- plot_ly(genders, labels = ~Client_Gender, values = ~n, type = 'pie',
                textposition = 'inside',
                textinfo = 'label+percent',
                insidetextfont = list(color = '#FFFFFF'),
                hoverinfo = 'text',
-               text = ~paste(n, ' cases'),
+               text = ~paste(format(n, nsmall = 0, big.mark = ","), ' cases'),
                
                marker = list(colors = ~colors,
                              line = list(color = '#FFFFFF', width = 1)),
