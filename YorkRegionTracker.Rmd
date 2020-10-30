@@ -639,6 +639,48 @@ plot_ly(acq_daily, x = ~Case_Reported_Date, y = ~OB_csum, type = 'scatter', mode
     buttons = buttons_time)))
 ```
 
+### Heatmaps 
+
+```{r}
+acq_daily <- TargetPHU %>% 
+  dplyr::select(Row_ID,Case_Reported_Date, Case_AcquisitionInfo) %>% 
+  group_by(Case_Reported_Date, Case_AcquisitionInfo) %>% 
+  summarise(count = n()) %>% 
+  dplyr::ungroup() %>% 
+  as.data.frame()
+
+acq_daily$Case_AcquisitionInfo <- factor(acq_daily$Case_AcquisitionInfo, 
+                                      levels = unique(acq_daily$Case_AcquisitionInfo)[order(acq_daily$count, decreasing = FALSE)])
+
+plot_ly(data = acq_daily, 
+        x = ~Case_Reported_Date, 
+        y = ~Case_AcquisitionInfo, 
+        z = ~count, 
+        type = "heatmap",
+        colors = colorRamp(c("Black","Blue", "Red")),
+        text = ~paste(acq_daily$Case_AcquisitionInfo, "<br>", 
+                       acq_daily$Case_Reported_Date,
+                       "<br>", acq_daily$count, " cases",
+                       sep = ""), 
+        hoverinfo = "text", 
+        
+        showlegend = F, 
+        showscale = FALSE) %>% 
+  
+  layout(title = "", 
+         
+         xaxis = list(title = "", rangeselector = list(
+           buttons = buttons_time)),
+         yaxis = list(title = ""),
+         
+         barmode = 'stack', 
+         hovermode = 'x-unified', 
+         hoverlabel=list(bgcolor="black"), 
+         plot_bgcolor='Black',
+         paper_bgcolor='Black', 
+         font = list(color = 'Grey')) 
+```
+
 
 Demographics
 =====================================
