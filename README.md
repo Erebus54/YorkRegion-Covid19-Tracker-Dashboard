@@ -13,7 +13,7 @@ YorkRegion-Covid19-Tracker-Dashboard
 
 Overview
 ========
-Flexdashboard for displaying stats about York Region's covid19 pandemic response provincially and regionally. 
+Flexdashboard for displaying stats about York Region's covid19 pandemic response.
 
 Setup
 =====
