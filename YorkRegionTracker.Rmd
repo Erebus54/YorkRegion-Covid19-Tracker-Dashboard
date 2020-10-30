@@ -639,7 +639,7 @@ plot_ly(acq_daily, x = ~Case_Reported_Date, y = ~OB_csum, type = 'scatter', mode
     buttons = buttons_time)))
 ```
 
-### Heatmaps 
+### <b> Heatmaps </b> 
 
 ```{r}
 acq_daily <- TargetPHU %>% 
