@@ -614,6 +614,61 @@ fig <- fig %>% layout(title = "",
 fig
 ```
 
+### <b> Acquisition Compositions Over Time </b> 
+
+```{r}
+cacot <- TargetPHU %>% 
+  dplyr::filter(Case_AcquisitionInfo != "No Epi-link") %>% 
+  dplyr::filter(Case_AcquisitionInfo != "No Info-Missing") %>% 
+  dplyr::filter(Case_AcquisitionInfo != "No Info-Unk") %>% 
+  dplyr::select(Row_ID,Case_Reported_Date, Case_AcquisitionInfo) %>% 
+  group_by(Case_Reported_Date, Case_AcquisitionInfo) %>% 
+  summarise(count = n()) %>% 
+  spread(Case_AcquisitionInfo, count, fill = 0) %>% 
+  as.data.frame() 
+
+cacot <- merge(x = cacot, y = dailyPHU[ , c("Case_Reported_Date", "Cases")], by = "Case_Reported_Date")
+cacot <- cacot %>% 
+  dplyr::rename(TotalCases = Cases) %>% 
+  dplyr::group_by(Case_Reported_Date) %>% 
+  dplyr::mutate(CC_Pct = round(CC/TotalCases*100,1), 
+                TR_Pct = round(Travel/TotalCases * 100, 1), 
+                OB_Pct = round(OB/TotalCases * 100, 1), 
+                MI_Pct = round(`Missing Information`/TotalCases * 100, 1), 
+                NKEL_Pct = round(`No known epi link`/TotalCases * 100, 1), 
+                UEL_Pct = round(`Unspecified epi link` / TotalCases * 100, 1)
+  ) %>% 
+  dplyr::ungroup() %>% 
+  data.frame()
+
+plot_ly(data = cacot, x = ~Case_Reported_Date, y = ~CC_Pct, 
+        type = 'scatter', mode = 'markers', 
+        name = "Close Contact", 
+        marker = list(color = "#E01E5A", width = 1)) %>% 
+  
+  add_trace(y = ~TR_Pct, name = "Travel", 
+            marker = list(color = "#25D366", width = 1)) %>% 
+  
+  add_trace(y = ~OB_Pct, name = "Outbreak", 
+            marker = list(color = "#F4B400", width = 1)) %>% 
+  
+  add_trace(y = ~MI_Pct, name = "Missing Info", 
+            marker = list(color = "Blue", width = 1)) %>% 
+  
+  add_trace(y = ~NKEL_Pct, name = "No known epi link", 
+            marker = list(color = "Blue", width = 1)) %>% 
+  
+  add_trace(y = ~UEL_Pct, name = "Unspecified epi link", 
+            marker = list(color = "Blue", width = 1)) %>% 
+  
+  layout(title = "",
+         yaxis = list(title = '<b> % of Daily Cases </b>'),
+         xaxis = list(title = ' ', rangeselector = list(buttons = buttons_time)),
+         hovermode = "x unified", 
+         hoverlabel=list(bgcolor="black"),
+         paper_bgcolor='transparent')
+```
+
 
 ### <b> Cumulative Acquisitions </b> 
 ```{r}
