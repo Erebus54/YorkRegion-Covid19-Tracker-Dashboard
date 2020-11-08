@@ -644,7 +644,14 @@ cacot <- cacot %>%
 plot_ly(data = cacot, x = ~Case_Reported_Date, y = ~CC_Pct, 
         type = 'scatter', mode = 'markers', 
         name = "Close Contact", 
-        marker = list(color = "#E01E5A", width = 1)) %>% 
+        marker = list(color = "#E01E5A", width = 1), 
+        
+        transforms = list(list(type = 'filter', 
+                               target = 'y',
+                               operation = '!=', 
+                               value = 0
+                               ))
+        ) %>% 
   
   add_trace(y = ~TR_Pct, name = "Travel", 
             marker = list(color = "#25D366", width = 1)) %>% 
