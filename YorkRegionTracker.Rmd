@@ -373,7 +373,7 @@ valueBox(format(round(as.numeric(sum(outcomes$Fatal)), 0), nsmall=0, big.mark=",
 ### Death Rate per 100K Population 
 ```{r}
 fatality <- sum(outcomes$Fatal/POP)
-fatality_rate_per_capita_K <- as.integer(prevalence*100000)
+fatality_rate_per_capita_K <- as.integer(fatality*100000)
 
 valueBox(fatality_rate_per_capita_K, icon = "ion-stats-bars")
 ```
