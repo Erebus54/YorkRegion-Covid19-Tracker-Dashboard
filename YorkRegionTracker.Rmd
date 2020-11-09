@@ -310,13 +310,12 @@ rolling.avg <- dailyPHU %>%
                 cp.56 = round(zoo::rollmedian(Cases, k = 56, fill = NA),0)
 )
 
-plot_ly(rolling.avg, x = ~Case_Reported_Date, y = ~cp.7, name = "7 Day Median",
+plot_ly(rolling.avg, x = ~Case_Reported_Date, y = ~cp.7, name = "7 Day Median Trend",
         type = 'scatter', mode = 'lines', fill = 'tozeroy', line = list(width = 0.1)) %>% 
   
-  add_trace(y = ~cp.14, name = "14 Day Median") %>% 
-  add_trace(y = ~cp.28, name = "28 Day Median ") %>% 
-  add_trace(y = ~cp.56, name = "56 Day Median") %>% 
-  
+  add_trace(y = ~cp.14, name = "14 Day Median Trend") %>% 
+  add_trace(y = ~cp.28, name = "28 Day Median Trend") %>% 
+
   layout(title = "",
          xaxis = list(title = " "), 
          yaxis = list(title = "New Cases"), 
