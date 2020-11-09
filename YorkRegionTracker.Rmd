@@ -306,8 +306,7 @@ rolling.avg <- dailyPHU %>%
   dplyr::select(Case_Reported_Date, Cases) %>% 
   dplyr::mutate(cp.7 = round(zoo::rollmedian(Cases, k = 7, fill = NA),0),
                 cp.14 = round(zoo::rollmedian(Cases, k = 14, fill = NA),0), 
-                cp.28 = round(zoo::rollmedian(Cases, k = 28, fill = NA),0), 
-                cp.56 = round(zoo::rollmedian(Cases, k = 56, fill = NA),0)
+                cp.28 = round(zoo::rollmedian(Cases, k = 28, fill = NA),0)
 )
 
 plot_ly(rolling.avg, x = ~Case_Reported_Date, y = ~cp.7, name = "7 Day Median Trend",
