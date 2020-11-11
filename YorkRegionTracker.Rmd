@@ -648,8 +648,7 @@ plot_ly(data = cacot, x = ~Case_Reported_Date, y = ~CC_Pct,
                                target = 'y',
                                operation = '!=', 
                                value = 0
-                               ))
-        ) %>% 
+                               ))) %>% 
   
   add_trace(y = ~TR_Pct, name = "Travel", 
             marker = list(color = "#25D366", width = 1)) %>% 
@@ -658,13 +657,13 @@ plot_ly(data = cacot, x = ~Case_Reported_Date, y = ~CC_Pct,
             marker = list(color = "#F4B400", width = 1)) %>% 
   
   add_trace(y = ~MI_Pct, name = "Missing Info", 
-            marker = list(color = "Blue", width = 1)) %>% 
+            marker = list(color = "#d7d7d7", width = 1)) %>% 
   
   add_trace(y = ~NKEL_Pct, name = "No known epi link", 
-            marker = list(color = "Blue", width = 1)) %>% 
+            marker = list(color = "#d7d7d7", width = 1)) %>% 
   
   add_trace(y = ~UEL_Pct, name = "Unspecified epi link", 
-            marker = list(color = "Blue", width = 1)) %>% 
+            marker = list(color = "#d7d7d7", width = 1)) %>% 
   
   layout(title = "",
          yaxis = list(title = '<b> % of Daily Cases </b>'),
