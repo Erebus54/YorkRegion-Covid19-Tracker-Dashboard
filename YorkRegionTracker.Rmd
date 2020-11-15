@@ -287,7 +287,6 @@ plot_ly(rolling.avg, x = ~Case_Reported_Date, y = ~cp.7, name = "7 Day Average",
   
   add_trace(y = ~cp.14, name = "14 Day Average") %>% 
   add_trace(y = ~cp.28, name = "28 Day Average ") %>% 
-  add_trace(y = ~cp.56, name = "56 Day Average") %>% 
   
   layout(title = "",
          xaxis = list(title = ""), 
@@ -747,13 +746,14 @@ Demographics
 ```{r}
 ages <- TargetPHU %>% 
   dplyr::group_by(Age_Group) %>% 
-  dplyr::summarise(n = n()) %>% 
+  dplyr::summarise(n = n(), .groups = 'keep') %>% 
+  dplyr::ungroup() %>% 
   data.frame()
 
 #breakdown by gender 
 genders <- TargetPHU %>% 
   dplyr::group_by(Client_Gender) %>% 
-  dplyr::summarise(n = n()) %>% 
+  dplyr::summarise(n = n(), .groups = 'keep') %>% 
   dplyr::ungroup() %>% 
   data.frame() 
 ```
@@ -765,23 +765,22 @@ Row {.tabset .tabset-fade}
 ```{r}
 ages$Age_Group <- ordered(ages$Age_Group, levels = c("<20", "20s", "30s", "40s", "50s", "60s", "70s", "80s", "90s"))
 
-
-fig <- plot_ly(ages, labels = ~Age_Group, values = ~n, type = 'pie',
-               textposition = 'inside',
-               textinfo = 'label+percent',
-               insidetextfont = list(color = '#FFFFFF'),
-               hoverinfo = 'text',
-               text = ~paste(format(n, nsmall = 0, big.mark = ","), ' Cases'),
+plot_ly(ages, 
+        labels = ~Age_Group, 
+        values = ~n, 
+        type = 'pie',
+        textposition = 'inside',
+        textinfo = 'label+percent',
+        insidetextfont = list(color = '#FFFFFF'),
+        hoverinfo = 'text',
+        text = ~paste(format(n, nsmall = 0, big.mark = ","), ' Cases'),
                
-               marker = list(colors = ~colors,
-                             line = list(color = '#FFFFFF', width = 1)),
-               #The 'pull' attribute can also be used to create space between the sectors
-               showlegend = FALSE)
-
-fig <- fig %>% layout(xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-                      yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-
-fig
+        marker = list(colors = ~colors,
+                      line = list(color = '#FFFFFF', width = 1)),
+        showlegend = FALSE) %>% 
+  
+  layout(xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 ```
 
 ### <b> Age Breakdown Treemap </b> 
@@ -885,17 +884,17 @@ fig
 ```{r}
 #daily cases by gender 
 daily_genders <- TargetPHU %>% 
+  dplyr::filter(!is.na(Case_Reported_Date)) %>% 
   dplyr::filter(Client_Gender %in% c("MALE", "FEMALE")) %>% 
   dplyr::group_by(Case_Reported_Date, Client_Gender) %>% 
   dplyr::count(name = "n") %>% 
+  dplyr::ungroup() %>% 
   dplyr::arrange(Case_Reported_Date, Client_Gender) %>% 
-  dplyr::mutate(Client_Gender = trimws(Client_Gender)) %>% 
+  dplyr::mutate(HEX = case_when(Client_Gender == "MALE" ~ "#54c3ff", 
+                                Client_Gender == "FEMALE" ~ "#c37ef0")) %>% 
   data.frame()
-  
 
-daily_genders$HEX <- ifelse(daily_genders$Client_Gender == "MALE", "#54c3ff", "#c37ef0")
-
-plot_ly(daily_genders, 
+plot_ly(data = daily_genders, 
         x = ~Case_Reported_Date, 
         y = ~n, 
         type = 'bar', 
@@ -905,10 +904,7 @@ plot_ly(daily_genders,
   layout(barmode = "stack", 
          hovermode = 'x-unified', 
          xaxis = list(title = ""), 
-         yaxis = list(title = "Cases")) %>% 
-  
-  layout(xaxis = list(rangeselector = list(
-    buttons = buttons_time)))
+         yaxis = list(title = "Cases")) 
 ```
 
 ### <b> Cumulative Cases by Gender </b> 
