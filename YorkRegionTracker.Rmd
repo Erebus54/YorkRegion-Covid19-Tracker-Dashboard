@@ -181,7 +181,8 @@ Row {.tabset .tabset-fade}
 dailyPHU <- data.frame(TargetPHU %>% 
   dplyr::arrange(Case_Reported_Date) %>% 
   dplyr::group_by(Case_Reported_Date) %>% 
-  dplyr::count(name = "Cases") 
+  dplyr::count(name = "Cases") %>% 
+  dplyr::ungroup()
 )
 
 dailyPHU <- dailyPHU %>% 
@@ -332,7 +333,8 @@ Outcomes
 outcomes <- TargetPHU %>% 
   dplyr::select(Row_ID,Case_Reported_Date, Outcome1) %>% 
   group_by(Case_Reported_Date, Outcome1) %>% 
-  summarise(count = n()) %>% 
+  summarise(count = n(), .groups = 'keep') %>% 
+  dplyr::ungroup() %>% 
   spread(Outcome1, count, fill = 0) %>% 
   as.data.frame()
 
@@ -381,7 +383,8 @@ Row {.tabset .tabset-fade}
 ```{r}
 outcomeBreakdown <- TargetPHU %>% 
   dplyr::group_by(Outcome1) %>% 
-  dplyr::summarise(n = n()) %>% 
+  dplyr::summarise(n = n(), .groups = 'keep') %>%
+  dplyr::ungroup() %>% 
   data.frame()
 
 colors <- c('#FF5959', "#FFC56C", "#6EC5E9")
@@ -446,32 +449,20 @@ outcomes_changes <- outcomes %>%
                 new_resolvedPct = round((Resolved / lag(Resolved) - 1)* 100,2))
 
 
-
-
-fig <- plot_ly(data = outcomes_changes, x = ~Case_Reported_Date, y = ~new_deaths, 
+plot_ly(data = outcomes_changes, x = ~Case_Reported_Date, y = ~new_resolved, 
                type = 'scatter',
-               mode = "lines+markers", 
-               name = "New Deaths", 
-               marker = list(color = "#FF5959"), 
-               line = list(color = "#FF5959")) %>% 
+               mode = "lines", 
+               name = "New Recoveries", 
+               line = list(color = "#25D366", width = 2)) %>% 
   
-  add_trace(y = ~new_resolved, 
-            name = "New Resolved", 
-            marker = list(color = "#6EC5E9"), 
-            line = list(color = "#6EC5E9"))
-
-
-fig <- fig %>% layout(title = "", 
-                      xaxis = list(title = ''),
-                      yaxis = list(title = 'Absolute Change in Cases'), 
-                      hovermode = "x unified",
-                      barmode = 'stack') %>% 
-  
-    layout(xaxis = list(rangeselector = list(
-    buttons = buttons_time)))
-  
-
-fig 
+  add_trace(y = ~new_deaths, 
+            name = "New Deaths", 
+            line = list(color = "#FF5959", width = 2)) %>% 
+  layout(title = "", 
+         xaxis = list(title = '', rangeselector = list(buttons = buttons_time)),
+         yaxis = list(title = 'Absolute Change in Cases'), 
+         hovermode = "x unified",
+         barmode = 'stack') 
 ```
 
 ### <b> Cumulative </b> 
@@ -505,7 +496,8 @@ Case Acquisition
 ```{r}
 acqBreakdown <- TargetPHU %>% 
   dplyr::group_by(Case_AcquisitionInfo) %>% 
-  dplyr::summarise(n = n()) %>% 
+  dplyr::summarise(n = n(), .groups = 'keep') %>% 
+  dplyr::ungroup() %>% 
   data.frame()
 
 acqBreakdown$Case_AcquisitionInfo <- trimws(acqBreakdown$Case_AcquisitionInfo)
@@ -571,7 +563,8 @@ acq_daily <- TargetPHU %>%
   dplyr::filter(Case_AcquisitionInfo != "No Info-Unk") %>% 
   dplyr::select(Row_ID,Case_Reported_Date, Case_AcquisitionInfo) %>% 
   group_by(Case_Reported_Date, Case_AcquisitionInfo) %>% 
-  summarise(count = n()) %>% 
+  summarise(count = n(), .groups = 'keep') %>%
+  dplyr::ungroup() %>% 
   spread(Case_AcquisitionInfo, count, fill = 0) %>% 
   as.data.frame()
 
@@ -620,7 +613,8 @@ cacot <- TargetPHU %>%
   dplyr::filter(Case_AcquisitionInfo != "No Info-Unk") %>% 
   dplyr::select(Row_ID,Case_Reported_Date, Case_AcquisitionInfo) %>% 
   group_by(Case_Reported_Date, Case_AcquisitionInfo) %>% 
-  summarise(count = n()) %>% 
+  summarise(count = n(), .groups = 'keep') %>% 
+  dplyr::ungroup() %>% 
   spread(Case_AcquisitionInfo, count, fill = 0) %>% 
   as.data.frame() 
 
@@ -633,8 +627,7 @@ cacot <- cacot %>%
                 OB_Pct = round(OB/TotalCases * 100, 1), 
                 MI_Pct = round(`Missing Information`/TotalCases * 100, 1), 
                 NKEL_Pct = round(`No known epi link`/TotalCases * 100, 1), 
-                UEL_Pct = round(`Unspecified epi link` / TotalCases * 100, 1)
-  ) %>% 
+                UEL_Pct = round(`Unspecified epi link` / TotalCases * 100, 1)) %>% 
   dplyr::ungroup() %>% 
   data.frame()
 
@@ -703,7 +696,7 @@ plot_ly(acq_daily, x = ~Case_Reported_Date, y = ~OB_csum, type = 'scatter', mode
 acq_daily <- TargetPHU %>% 
   dplyr::select(Row_ID,Case_Reported_Date, Case_AcquisitionInfo) %>% 
   group_by(Case_Reported_Date, Case_AcquisitionInfo) %>% 
-  summarise(count = n()) %>% 
+  summarise(count = n(), .groups = 'keep') %>% 
   dplyr::ungroup() %>% 
   as.data.frame()
 
@@ -811,8 +804,10 @@ fig
 
 ```{r}
 daily_ages <- TargetPHU %>% 
+  dplyr::filter(!is.na(Case_Reported_Date)) %>% 
   dplyr::group_by(Case_Reported_Date, Age_Group) %>% 
   dplyr::count(name = "n") %>% 
+  dplyr::ungroup() %>% 
   data.frame()
 
 daily_ages$Age_Group <- ordered(daily_ages$Age_Group, levels = c("<20", "20s", "30s", "40s", "50s", "60s", "70s", "80s", "90s"))
@@ -841,8 +836,10 @@ plot_ly(daily_ages,
 ### <b> Cumulative Cases by Age Group </b>
 ```{r csumbyAge}
 daily_ages <- daily_ages %>% 
-  dplyr::group_by(Age_Group) %>% 
-  dplyr::mutate(csum = cumsum(n))
+  dplyr::group_by(Age_Group) %>%
+  dplyr::mutate(csum = cumsum(n)) %>% 
+  dplyr::ungroup() %>% 
+  data.frame()
 
 plot_ly(daily_ages, x = ~Case_Reported_Date, y = ~csum, 
         type = 'scatter', mode = 'lines', fill = 'tozeroy', 
@@ -925,6 +922,8 @@ plot_ly(daily_genders, x = ~Case_Reported_Date, y = ~csum,
   layout(xaxis = list(rangeselector = list(
     buttons = buttons_time)))
 ```
+
+
 
 
 About this Site
