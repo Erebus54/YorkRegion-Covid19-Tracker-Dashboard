@@ -120,7 +120,7 @@ valueBox(cCases, icon = "ion-android-person-add")
 ### New Cases 
 ```{r}
 todays_cases <- TargetPHU %>% 
-  dplyr::filter(Case_Reported_Date == max(Case_Reported_Date)) %>% 
+  dplyr::filter(Accurate_Episode_Date == max(Accurate_Episode_Date)) %>% 
   dplyr::count()
 
 valueBox(paste("+", todays_cases, sep = ""), icon = "ion-stats-bars")
