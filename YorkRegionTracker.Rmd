@@ -469,7 +469,7 @@ plot_ly(data = outcomes_changes, x = ~Case_Reported_Date, y = ~new_resolved,
 
 ```{r}
 fig <- plot_ly(x = ~outcomes_changes$Case_Reported_Date, y = ~outcomes_changes$total_resolved, type = 'bar', name = 'Resolved', 
-               marker = list(color = '#6EC5E9'))
+               marker = list(color = '#25D366'))
 
 fig <- fig %>% add_trace(x = ~outcomes_changes$Case_Reported_Date, y = ~outcomes_changes$total_deaths, name = 'Deaths', 
                          marker = list(color ='#FF5959'))
@@ -527,6 +527,24 @@ valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "CC")/nrow(TargetPHU)
 ### Outbreak Related Cases 
 ```{r}
 valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "OB")/nrow(TargetPHU)*100, 1), "%"), icon = "ion-alert-circled")
+```
+
+### Missing Information Cases
+```{r}
+valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "Missing Information")/nrow(TargetPHU)*100, 1), "%"), 
+         icon = "ion-help-circled")
+```
+
+### No known epi link
+```{r}
+valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "No known epi link")/nrow(TargetPHU)*100, 1), "%"), 
+         icon = "ion-help-circled")
+```
+
+### Unspecified epi link
+```{r}
+valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "Unspecified epi link")/nrow(TargetPHU)*100, 1), "%"), 
+         icon = "ion-help-circled")
 ```
 
 Row {.tabset .tabset-fade}
@@ -708,7 +726,7 @@ plot_ly(data = acq_daily,
         y = ~Case_AcquisitionInfo, 
         z = ~count, 
         type = "heatmap",
-        colors = colorRamp(c("Black","Blue", "Red")),
+        #colors = colorRamp(c("Black","Blue", "Red")),
         text = ~paste(acq_daily$Case_AcquisitionInfo, "<br>", 
                        acq_daily$Case_Reported_Date,
                        "<br>", acq_daily$count, " cases",
