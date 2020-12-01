@@ -942,7 +942,8 @@ males <- daily_genders_cum[which(daily_genders_cum$Client_Gender == "MALE"), ]
 females <- daily_genders_cum[which(daily_genders_cum$Client_Gender == "FEMALE"), ]
 
 plot_ly(females, x = ~Accurate_Episode_Date,  y = ~Total,  type = 'scatter', mode = 'none', name = 'FEMALE', fill = 'tozeroy', 
-        fillcolor = "#c37ef0") %>% 
+        fillcolor = "#c37ef0",
+        opacity = 0.5) %>% 
   
   add_trace(data = males, x = ~Accurate_Episode_Date, y = ~Total, name = "MALE",
             fillcolor = "#54c3ff") %>% 
