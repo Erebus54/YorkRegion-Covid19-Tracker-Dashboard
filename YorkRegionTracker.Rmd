@@ -712,6 +712,10 @@ plot_ly(data = acq_daily,
 Demographics
 =====================================
 
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+### <b> Age Breakdown Pie </b> 
 ```{r}
 ages <- TargetPHU %>% 
   dplyr::group_by(Age_Group) %>% 
@@ -719,19 +723,6 @@ ages <- TargetPHU %>%
   dplyr::ungroup() %>% 
   data.frame()
 
-#breakdown by gender 
-genders <- TargetPHU %>% 
-  dplyr::group_by(Client_Gender) %>% 
-  dplyr::summarise(n = n(), .groups = 'keep') %>% 
-  dplyr::ungroup() %>% 
-  data.frame() 
-```
-
-Row {.tabset .tabset-fade}
--------------------------------------
-
-### <b> Age Breakdown Pie </b> 
-```{r}
 ages$Age_Group <- ordered(ages$Age_Group, levels = c("<20", "20s", "30s", "40s", "50s", "60s", "70s", "80s", "90s"))
 
 plot_ly(ages, 
@@ -833,9 +824,17 @@ plot_ly(daily_ages, x = ~Accurate_Episode_Date, y = ~csum,
 
 ### <b> Gender Breakdown </b>
 ```{r}
+#breakdown by gender 
+genders <- TargetPHU %>%
+  dplyr::filter(Client_Gender == "FEMALE" | Client_Gender == "MALE") %>% 
+  dplyr::group_by(Client_Gender) %>% 
+  dplyr::summarise(n = n(), .groups = 'keep') %>% 
+  dplyr::ungroup() %>% 
+  data.frame() 
+
 colors <- c('#c37ef0', "#54c3ff")
 
-fig <- plot_ly(genders, labels = ~Client_Gender, values = ~n, type = 'pie',
+plot_ly(genders, labels = ~Client_Gender, values = ~n, type = 'pie',
                textposition = 'inside',
                textinfo = 'label+percent',
                insidetextfont = list(color = '#FFFFFF'),
@@ -844,21 +843,19 @@ fig <- plot_ly(genders, labels = ~Client_Gender, values = ~n, type = 'pie',
                
                marker = list(colors = ~colors,
                              line = list(color = '#FFFFFF', width = 1)),
-               #The 'pull' attribute can also be used to create space between the sectors
-               showlegend = FALSE)
-
-fig <- fig %>% layout(xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+               showlegend = FALSE) %>% 
+  
+  layout(xaxis = list(showgrid = FALSE, 
+                      zeroline = FALSE, 
+                      showticklabels = FALSE),
                       yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-
-fig
 ```
 
 ### <b> Daily Cases by Gender </b>
 ```{r}
-#daily cases by gender 
 daily_genders <- TargetPHU %>% 
   dplyr::filter(!is.na(Accurate_Episode_Date)) %>% 
-  dplyr::filter(Client_Gender %in% c("MALE", "FEMALE")) %>% 
+  dplyr::filter(Client_Gender == "FEMALE" | Client_Gender == "MALE") %>% 
   dplyr::group_by(Accurate_Episode_Date, Client_Gender) %>% 
   dplyr::count(name = "n") %>% 
   dplyr::ungroup() %>% 
@@ -898,11 +895,11 @@ males <- daily_genders_cum[which(daily_genders_cum$Client_Gender == "MALE"), ]
 females <- daily_genders_cum[which(daily_genders_cum$Client_Gender == "FEMALE"), ]
 
 plot_ly(females, x = ~Accurate_Episode_Date,  y = ~Total,  type = 'scatter', mode = 'none', name = 'FEMALE', fill = 'tozeroy', 
-        fillcolor = "#c37ef0",
-        opacity = 0.5) %>% 
+        fillcolor = 'rgba(195, 126, 240, 0.7)') %>% 
+  
   
   add_trace(data = males, x = ~Accurate_Episode_Date, y = ~Total, name = "MALE",
-            fillcolor = "#54c3ff") %>% 
+            fillcolor = 'rgba(84, 195, 255, 0.7)') %>% 
   
   layout(hovermode = 'x-unified', 
          xaxis = list(title = ""), 
