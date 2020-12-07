@@ -360,7 +360,7 @@ valueBox(format(round(as.numeric(sum(outcomes$Resolved)), 0), nsmall=0, big.mark
 ### Current Recovery Rate 
 
 ```{r}
-rr <- paste(round(100-(sum(outcomes$Fatal)/sum(outcomes$Resolved, outcomes$Unresolved, outcomes$Fatal) * 100),2), "%")
+rr <- paste(round(100-(sum(outcomes$Fatal)/sum(outcomes$Resolved, outcomes$Unresolved, outcomes$Fatal) * 100),0), "%")
 valueBox(rr, icon = "ion-ios-calculator")
 ```
 
@@ -529,11 +529,6 @@ valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "CC")/nrow(TargetPHU)
 valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "OB")/nrow(TargetPHU)*100, 1), "%"), icon = "ion-alert-circled")
 ```
 
-### Unknown Cases
-```{r}
-valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "Unknown")/nrow(TargetPHU)*100, 1), "%"), 
-         icon = "ion-help-circled")
-```
 
 Row {.tabset .tabset-fade}
 -------------------------------------
