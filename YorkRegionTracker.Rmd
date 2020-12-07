@@ -617,27 +617,29 @@ acq_daily <- TargetPHU %>%
   dplyr::mutate(CC_csum = cumsum(`Close Contact`), 
                 OB_csum = cumsum(`Outbreak Related`), 
                 Travel_csum = cumsum(Travel),
-                Unknown_csum = cumsum(`Unknown`)) 
+                Unknown_csum = cumsum(`Unknown`))
+
 acq_daily <- na.omit(acq_daily, cols = "Case_Reported_Date")
-plot_ly(acq_daily, x = ~Case_Reported_Date, y = ~OB_csum, 
+
+plot_ly(acq_daily, x = ~Case_Reported_Date, y = ~CC_csum, 
         type = 'scatter', mode = 'none', fill = 'tozeroy', 
-        name = 'Outbreak', 
-        fillcolor = 'rgba(244, 180, 0, 0.7)',
+        name = 'Close Contact', 
+        fillcolor = 'rgba(224, 30, 90, 0.7)',
         opacity = 0.8) %>% 
   
-  add_trace(x = ~Case_Reported_Date,y = ~CC_csum, name = "Close Contact", 
-            fill = 'tozeroy',
-            fillcolor = 'rgba(224, 30, 90, 0.7)',
-            opacity = 0.8) %>% 
-  
-  add_trace(x = ~Case_Reported_Date,y = ~Travel_csum, name = "Travel", 
-            fill = 'tozeroy',
-            fillcolor = 'rgba(37, 211, 102, 0.7)',
-            opacity = 0.8) %>% 
-  
-  add_trace(x = ~Case_Reported_Date,y = ~Unknown_csum, name = "Uknown", 
+  add_trace(y = ~Unknown_csum, name = "Uknown", 
             fill = 'tozeroy',
             fillcolor = 'rgba(220, 220, 220, 0.7)',
+            opacity = 0.8) %>% 
+  
+  add_trace(y = ~OB_csum, name = "Outbreak", 
+            fill = 'tozeroy',
+            fillcolor = 'rgba(244, 180, 0, 0.7)',
+            opacity = 0.8) %>% 
+  
+  add_trace(y = ~Travel_csum, name = "Travel", 
+            fill = 'tozeroy',
+            fillcolor = 'rgba(37, 211, 102, 0.7)',
             opacity = 0.8) %>% 
   
   layout(hovermode = 'x-unified', 
