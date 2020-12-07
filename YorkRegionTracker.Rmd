@@ -114,7 +114,7 @@ Row
 #use this to change icons https://ionicons.com/v2/cheatsheet.html
 cCases <- paste(format(round(as.numeric(nrow(TargetPHU)), 0), nsmall=0, big.mark=",")  # 1,000.6
 )
-valueBox(cCases, icon = "ion-android-person-add")
+valueBox(cCases, icon = "ion-ios-people")
 ```
 
 ### New Cases 
@@ -123,7 +123,7 @@ todays_cases <- TargetPHU %>%
   dplyr::filter(Accurate_Episode_Date == max(Accurate_Episode_Date)) %>% 
   dplyr::count()
 
-valueBox(paste("+", todays_cases, sep = ""), icon = "ion-stats-bars")
+valueBox(paste("+", todays_cases, sep = ""), icon = "ion-android-person-add")
 ```
 
 
@@ -238,10 +238,7 @@ plot_ly(data = dailyPHU,
         
         hoverinfo = 'text', 
         text = ~paste(Accurate_Episode_Date, "<br>", 
-                      Cases, ' New Cases', sep = "")
-        
-        ) %>% 
-
+                      Cases, ' New Cases', sep = "")) %>% 
   
   layout(title = "",
          yaxis = list(title = '<b>New Cases </b>'),
@@ -258,8 +255,16 @@ plot_ly(data = dailyPHU,
 ### <b> The Curve - Linear Scale </b>
 
 ```{r}
-fig <- plot_ly(x = ~dailyPHU$Accurate_Episode_Date, y = ~dailyPHU$csum, type = 'scatter', mode = 'none', name = 'Total Cases', fill = 'tozeroy',
-               fillcolor = '#2858a6')
+
+fig <- plot_ly(x = ~dailyPHU$Accurate_Episode_Date, 
+               y = ~dailyPHU$csum, 
+               type = 'scatter', mode = 'none', 
+               name = 'Total Cases', fill = 'tozeroy',
+               fillcolor = '#2858a6', 
+               hoverinfo = 'text', 
+               text = ~paste(dailyPHU$Accurate_Episode_Date, "<br>", 
+                      format(dailyPHU$csum, big.mark = ","), ' Total Cases', sep = "")
+               )
 
 fig <- fig %>% layout(xaxis = list(title = '', 
                                    rangeselector = list(buttons = buttons_time)),
@@ -516,19 +521,26 @@ Row
 
 ### Travel Related Cases 
 ```{r}
-valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "Travel")/nrow(TargetPHU)*100, 1), "%"), icon = "ion-plane")
+TRC <- round(sum(TargetPHU$Case_AcquisitionInfo == "Travel")/nrow(TargetPHU)*100, 1)
+valueBox(paste(TRC, "%"), icon = "ion-plane")
 ```
 
 ### Close Contact Cases 
 ```{r}
-valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "CC")/nrow(TargetPHU)*100, 1), "%"), icon = "ion-ios-people")
+CCC <- round(sum(TargetPHU$Case_AcquisitionInfo == "CC")/nrow(TargetPHU)*100, 1)
+valueBox(paste(CCC, "%"), icon = "ion-ios-people")
 ```
 
 ### Outbreak Related Cases 
 ```{r}
-valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "OB")/nrow(TargetPHU)*100, 1), "%"), icon = "ion-alert-circled")
+ORC <- round(sum(TargetPHU$Case_AcquisitionInfo == "OB")/nrow(TargetPHU)*100, 1)
+valueBox(paste(ORC, "%"), icon = "ion-alert-circled")
 ```
 
+### Unknown Cases
+```{r}
+valueBox(paste(100-sum(TRC, ORC, CCC), "%"), icon = "ion-help")
+```
 
 Row {.tabset .tabset-fade}
 -------------------------------------
@@ -555,7 +567,7 @@ fig <- fig %>% layout(xaxis = list(showgrid = FALSE, zeroline = FALSE, showtickl
 fig
 ``` 
 
-### <b> Case Acquisitions over time </b> 
+### <b> Daily Acquisitions </b> 
 
 ```{r}
 acq_daily <- TargetPHU %>% 
@@ -652,13 +664,20 @@ plot_ly(acq_daily, x = ~Case_Reported_Date, y = ~CC_csum,
 ```{r}
 acq_daily <- TargetPHU %>% 
   dplyr::select(Row_ID, Accurate_Episode_Date, Case_AcquisitionInfo) %>% 
+  dplyr::mutate(Case_AcquisitionInfo = case_when(
+    .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
+    .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
+    .$Case_AcquisitionInfo == "Travel" ~ "Travel",
+    .$Case_AcquisitionInfo == "No known epi link" ~ "Unknown",
+    .$Case_AcquisitionInfo == "Missing Information" ~ "Unknown",
+    .$Case_AcquisitionInfo == "Unspecified epi link" ~ "Unknown")) %>% 
   group_by(Accurate_Episode_Date, Case_AcquisitionInfo) %>% 
   summarise(count = n(), .groups = 'keep') %>% 
   dplyr::ungroup() %>% 
   as.data.frame()
 
 acq_daily$Case_AcquisitionInfo <- factor(acq_daily$Case_AcquisitionInfo, 
-                                      levels = unique(acq_daily$Case_AcquisitionInfo)[order(acq_daily$count, decreasing = FALSE)])
+                                         levels = unique(acq_daily$Case_AcquisitionInfo)[order(acq_daily$count, decreasing = FALSE)])
 
 plot_ly(data = acq_daily, 
         x = ~Accurate_Episode_Date, 
@@ -667,13 +686,13 @@ plot_ly(data = acq_daily,
         type = "heatmap",
         #colors = colorRamp(c("Black","Blue", "Red")),
         text = ~paste(acq_daily$Case_AcquisitionInfo, "<br>", 
-                       acq_daily$Accurate_Episode_Date,
-                       "<br>", acq_daily$count, " cases",
-                       sep = ""), 
+                      acq_daily$Accurate_Episode_Date,
+                      "<br>", acq_daily$count, " cases",
+                      sep = ""), 
         hoverinfo = "text", 
         
         showlegend = F, 
-        showscale = FALSE) %>% 
+        showscale = T) %>% 
   
   layout(title = "", 
          
