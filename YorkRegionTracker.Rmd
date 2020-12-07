@@ -890,7 +890,6 @@ daily_genders_cum <- daily_genders %>%
   dplyr::ungroup() %>% 
   data.frame()
 
-
 males <- daily_genders_cum[which(daily_genders_cum$Client_Gender == "MALE"), ]
 females <- daily_genders_cum[which(daily_genders_cum$Client_Gender == "FEMALE"), ]
 
