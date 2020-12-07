@@ -495,19 +495,19 @@ Case Acquisition
 
 ```{r}
 acqBreakdown <- TargetPHU %>% 
+  dplyr::mutate(Case_AcquisitionInfo = case_when(
+    .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
+    .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
+    .$Case_AcquisitionInfo == "Travel" ~ "Travel",
+    .$Case_AcquisitionInfo == "No known epi link" ~ "Unknown",
+    .$Case_AcquisitionInfo == "Missing Information" ~ "Unknown",
+    .$Case_AcquisitionInfo == "Unspecified epi link" ~ "Unknown")) %>% 
   dplyr::group_by(Case_AcquisitionInfo) %>% 
   dplyr::summarise(n = n(), .groups = 'keep') %>% 
   dplyr::ungroup() %>% 
   data.frame()
 
-acqBreakdown$Case_AcquisitionInfo <- trimws(acqBreakdown$Case_AcquisitionInfo)
-
-acqBreakdown$Case_AcquisitionInfo <- ifelse(acqBreakdown$Case_AcquisitionInfo == "OB", "Outbreak Related", acqBreakdown$Case_AcquisitionInfo)
-acqBreakdown$Case_AcquisitionInfo <- ifelse(acqBreakdown$Case_AcquisitionInfo == "CC", "Close Contact", acqBreakdown$Case_AcquisitionInfo)
-acqBreakdown$Case_AcquisitionInfo <- ifelse(acqBreakdown$Case_AcquisitionInfo == "Travel", "Travel", acqBreakdown$Case_AcquisitionInfo)
-
-
-acqBreakdown$colors <- c("#E01E5A", "#4285F4", "#767676", "#0F9D58", "#F4B400", "#0F9D58")
+acqBreakdown$colors <- c("#E01E5A", "#F4B400", "#25D366", "#C0C0C0")
 ```
 
 
@@ -529,21 +529,9 @@ valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "CC")/nrow(TargetPHU)
 valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "OB")/nrow(TargetPHU)*100, 1), "%"), icon = "ion-alert-circled")
 ```
 
-### Missing Information Cases
+### Unknown Cases
 ```{r}
-valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "Missing Information")/nrow(TargetPHU)*100, 1), "%"), 
-         icon = "ion-help-circled")
-```
-
-### No known epi link
-```{r}
-valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "No known epi link")/nrow(TargetPHU)*100, 1), "%"), 
-         icon = "ion-help-circled")
-```
-
-### Unspecified epi link
-```{r}
-valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "Unspecified epi link")/nrow(TargetPHU)*100, 1), "%"), 
+valueBox(paste(round(sum(TargetPHU$Case_AcquisitionInfo == "Unknown")/nrow(TargetPHU)*100, 1), "%"), 
          icon = "ion-help-circled")
 ```
 
@@ -577,6 +565,13 @@ fig
 ```{r}
 acq_daily <- TargetPHU %>% 
   dplyr::select(Row_ID, Accurate_Episode_Date, Case_AcquisitionInfo) %>% 
+  dplyr::mutate(Case_AcquisitionInfo = case_when(
+    .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
+    .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
+    .$Case_AcquisitionInfo == "Travel" ~ "Travel",
+    .$Case_AcquisitionInfo == "No known epi link" ~ "Unknown",
+    .$Case_AcquisitionInfo == "Missing Information" ~ "Unknown",
+    .$Case_AcquisitionInfo == "Unspecified epi link" ~ "Unknown")) %>%
   group_by(Accurate_Episode_Date, Case_AcquisitionInfo) %>% 
   summarise(count = n(), .groups = 'keep') %>%
   dplyr::ungroup() %>% 
@@ -585,19 +580,17 @@ acq_daily <- TargetPHU %>%
 
 plot_ly(data = acq_daily, 
         x = ~Accurate_Episode_Date, 
-        y = ~CC, type = 'bar', 
+        y = ~`Close Contact`, type = 'bar', 
         name = 'Close Contact', 
         marker = list(color = '#E01E5A')) %>% 
   
-  add_trace(y = ~OB, name = 'Outbreak Related', marker = list(color = '#F4B400')) %>% 
+  add_trace(y = ~`Outbreak Related`, name = 'Outbreak Related', marker = list(color = '#F4B400')) %>% 
   
   add_trace(y = ~Travel, name = 'Travel', marker = list(color ='#25D366'))%>% 
   
-  add_trace(y = ~`Missing Information`, 
-            name = "Missing Information", marker = list(color = "#DCDCDC")) %>% 
-  add_trace(y = ~`No known epi link`, name = "No known epi link", marker = list(color = "#D3D3D3")) %>% 
-  add_trace(y = ~`Unspecified epi link`, name = "Unspecified epi link", marker = list(color = "#C0C0C0")) %>% 
-  
+  add_trace(y = ~Unknown, 
+            name = "Unknown", marker = list(color = "#DCDCDC")) %>% 
+
   layout(title = "", 
          xaxis = list(title = '', 
                       rangeselector = list(buttons = buttons_time)),
@@ -610,34 +603,51 @@ plot_ly(data = acq_daily,
 
 ### <b> Cumulative Acquisitions </b> 
 ```{r cumacq}
-acq_daily <- acq_daily %>% 
-  dplyr::mutate(CC_csum = cumsum(CC), 
-                OB_csum = cumsum(OB), 
-                Travel_csum = cumsum(Travel)) 
-
-plot_ly(data = acq_daily, 
-        x = ~Accurate_Episode_Date, 
-        y = ~OB_csum, 
+acq_daily <- TargetPHU %>% 
+  dplyr::select(Row_ID,Case_Reported_Date, Case_AcquisitionInfo) %>% 
+  dplyr::mutate(Case_AcquisitionInfo = case_when(
+    .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
+    .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
+    .$Case_AcquisitionInfo == "Travel" ~ "Travel",
+    .$Case_AcquisitionInfo == "No known epi link" ~ "Unknown",
+    .$Case_AcquisitionInfo == "Missing Information" ~ "Unknown",
+    .$Case_AcquisitionInfo == "Unspecified epi link" ~ "Unknown")) %>% 
+  dplyr::group_by(Case_Reported_Date, Case_AcquisitionInfo) %>% 
+  dplyr::summarise(count = n(), .groups = 'keep') %>% 
+  dplyr::ungroup() %>% 
+  tidyr::spread(Case_AcquisitionInfo, count, fill = 0) %>% 
+  as.data.frame() %>% 
+  
+  #adding cumulative counts 
+  dplyr::mutate(CC_csum = cumsum(`Close Contact`), 
+                OB_csum = cumsum(`Outbreak Related`), 
+                Travel_csum = cumsum(Travel),
+                Unknown_csum = cumsum(`Unknown`)) 
+acq_daily <- na.omit(acq_daily, cols = "Case_Reported_Date")
+plot_ly(acq_daily, x = ~Case_Reported_Date, y = ~OB_csum, 
         type = 'scatter', mode = 'none', fill = 'tozeroy', 
         name = 'Outbreak', 
         fillcolor = 'rgba(244, 180, 0, 0.7)',
         opacity = 0.8) %>% 
   
-  
-  add_trace(x = ~Accurate_Episode_Date,y = ~CC_csum, name = "Close Contact", fill = 'tozeroy',
+  add_trace(x = ~Case_Reported_Date,y = ~CC_csum, name = "Close Contact", 
+            fill = 'tozeroy',
             fillcolor = 'rgba(224, 30, 90, 0.7)',
             opacity = 0.8) %>% 
   
-  add_trace(x = ~Accurate_Episode_Date,y = ~Travel_csum, name = "Travel", fill = 'tozeroy',
+  add_trace(x = ~Case_Reported_Date,y = ~Travel_csum, name = "Travel", 
+            fill = 'tozeroy',
             fillcolor = 'rgba(37, 211, 102, 0.7)',
             opacity = 0.8) %>% 
   
-  layout(hovermode = 'x-unified', 
-         xaxis = list(title = ""), 
-         yaxis = list(title = "Cases")) %>% 
+  add_trace(x = ~Case_Reported_Date,y = ~Unknown_csum, name = "Uknown", 
+            fill = 'tozeroy',
+            fillcolor = 'rgba(220, 220, 220, 0.7)',
+            opacity = 0.8) %>% 
   
-  layout(xaxis = list(rangeselector = list(
-    buttons = buttons_time)))
+  layout(hovermode = 'x-unified', 
+         xaxis = list(title = "", rangeselector = list(buttons = buttons_time)), 
+         yaxis = list(title = "Cumulative Totals"))
 ```
 
 ### <b> Heatmaps </b> 
