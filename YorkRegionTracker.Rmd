@@ -3,7 +3,6 @@ title: "York Region Tracker"
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
-    social: ["twitter", "facebook", "linkedin"]
     theme: cosmo
 runtime: shiny
 ---
