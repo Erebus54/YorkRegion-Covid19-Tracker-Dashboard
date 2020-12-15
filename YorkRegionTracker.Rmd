@@ -528,8 +528,7 @@ TargetPHU %>%
          yaxis = list(title = 'Cumulative (Log)', type = "log"), 
          hovermode = "x unified",
          barmode = 'stack', 
-         legend=list(title=list(text='<b> Cumulative Outcomes </b>'))
-         ) 
+         legend=list(title=list(text='<b> Cumulative Outcomes </b>'))) 
 ```
 
 
@@ -786,7 +785,7 @@ plot_ly(ages,
 
 ### <b> Age Breakdown Treemap </b> 
 ```{r}
-fig <- plot_ly(data = ages, 
+plot_ly(data = ages, 
         labels = ~Age_Group, 
         parents = NA, 
         values = ~n, 
@@ -797,104 +796,107 @@ fig <- plot_ly(data = ages,
         textinfo = 'label',
         insidetextfont = list(color = '#FFFFFF', size = 20),
         hoverinfo = 'text',
-        text = ~paste(Age_Group,':', n, 'Total Cases')) 
-
-fig <- fig %>% 
+        text = ~paste(Age_Group,':', format(n, big.mark = ","), 'Total Cases')) %>% 
   
   layout(plot_bgcolor = 'black', 
          paper_bgcolor = 'black', 
          grid = list(columns = 1, rows = 1))
-
-fig
 ```
 
 ### <b> Daily Cases by Age </b>
 
 ```{r}
-daily_ages <- TargetPHU %>% 
+TargetPHU %>% 
   dplyr::filter(!is.na(Accurate_Episode_Date)) %>% 
+  dplyr::filter(!Accurate_Episode_Date == "2019-12-25") %>% 
   dplyr::group_by(Accurate_Episode_Date, Age_Group) %>% 
   dplyr::count(name = "n") %>% 
   dplyr::ungroup() %>% 
-  data.frame()
+  data.frame() %>% 
+  dplyr::mutate(Age_Group = ordered(Age_Group, levels = c("<20", "20s", "30s", "40s", "50s", "60s", "70s", "80s", "90s"))) %>% 
+  dplyr::arrange(Accurate_Episode_Date, Age_Group) %>% 
 
-daily_ages$Age_Group <- ordered(daily_ages$Age_Group, levels = c("<20", "20s", "30s", "40s", "50s", "60s", "70s", "80s", "90s"))
-
-daily_ages <- daily_ages %>% 
-  dplyr::arrange(Accurate_Episode_Date, Age_Group)
-
-
-
-plot_ly(daily_ages, 
-        x = ~Accurate_Episode_Date, 
+plot_ly(x = ~Accurate_Episode_Date, 
         y = ~n, 
         type = 'bar', 
         color = ~Age_Group, 
-        colors = "Paired") %>% 
+        colors = "Paired", 
+        text = ~paste(Accurate_Episode_Date, "<br>",
+                      "Age Group: ", Age_Group, "<br>",
+                      format(n, big.mark = ","), " Cases", sep = ""), 
+        hoverinfo = "text") %>% 
   
   layout(barmode = "stack", 
          hovermode = 'x-unified', 
-         xaxis = list(title = ""), 
-         yaxis = list(title = "Cases")) %>% 
-  
-  layout(xaxis = list(rangeselector = list(
-    buttons = buttons_time)))
+         xaxis = list(title = "", rangeselector = list(buttons = buttons_time)), 
+         yaxis = list(title = "Cases (n)"), 
+         legend=list(title=list(text='<b> Age Group </b>'))) 
 ```
 
 ### <b> Cumulative Cases by Age Group </b>
 ```{r csumbyAge}
-daily_ages <- daily_ages %>% 
+
+TargetPHU %>% 
+  dplyr::filter(!is.na(Accurate_Episode_Date)) %>% 
+  dplyr::filter(!Accurate_Episode_Date == "2019-12-25") %>% 
+  dplyr::group_by(Accurate_Episode_Date, Age_Group) %>% 
+  dplyr::count(name = "n") %>% 
+  dplyr::ungroup() %>% 
+  data.frame() %>% 
+  dplyr::mutate(Age_Group = ordered(Age_Group, levels = c("<20", "20s", "30s", "40s", "50s", "60s", "70s", "80s", "90s"))) %>% 
+  dplyr::arrange(Accurate_Episode_Date, Age_Group) %>% 
   dplyr::group_by(Age_Group) %>%
   dplyr::mutate(csum = cumsum(n)) %>% 
   dplyr::ungroup() %>% 
-  data.frame()
+  dplyr::select(Accurate_Episode_Date, Age_Group, csum) %>% 
+  data.frame() %>% 
 
-plot_ly(daily_ages, x = ~Accurate_Episode_Date, y = ~csum, 
+plot_ly(x = ~Accurate_Episode_Date, y = ~csum, 
         type = 'scatter', mode = 'lines', fill = 'tozeroy', 
         color = ~Age_Group, 
-        colors = "Paired") %>% 
+        colors = "Paired", 
+        text = ~paste(Accurate_Episode_Date, "<br>",
+                      "Age Group: ", Age_Group, "<br>",
+                      format(csum, big.mark = ","), " Total Cases to Date", sep = ""), 
+        hoverinfo = "text") %>% 
   
   layout(hovermode = 'x-unified', 
-         xaxis = list(title = ""), 
-         yaxis = list(title = "Cases")) %>% 
-  
-  layout(xaxis = list(rangeselector = list(
-    buttons = buttons_time)))
+         xaxis = list(title = "", rangeselector = list(buttons = buttons_time)), 
+         yaxis = list(title = "Cases"), 
+         legend=list(title=list(text='<b> Age Group </b>')))
 ```
 
 
 ### <b> Gender Breakdown </b>
 ```{r}
 #breakdown by gender 
-genders <- TargetPHU %>%
+TargetPHU %>%
   dplyr::filter(Client_Gender == "FEMALE" | Client_Gender == "MALE") %>% 
   dplyr::group_by(Client_Gender) %>% 
   dplyr::summarise(n = n(), .groups = 'keep') %>% 
   dplyr::ungroup() %>% 
-  data.frame() 
+  data.frame() %>% 
 
-colors <- c('#c37ef0', "#54c3ff")
-
-plot_ly(genders, labels = ~Client_Gender, values = ~n, type = 'pie',
-               textposition = 'inside',
-               textinfo = 'label+percent',
-               insidetextfont = list(color = '#FFFFFF'),
-               hoverinfo = 'text',
-               text = ~paste(format(n, nsmall = 0, big.mark = ","), ' cases'),
-               
-               marker = list(colors = ~colors,
-                             line = list(color = '#FFFFFF', width = 1)),
-               showlegend = FALSE) %>% 
+plot_ly(labels = ~Client_Gender, values = ~n, type = 'pie',
+        textposition = 'inside',
+        textinfo = 'label+percent',
+        insidetextfont = list(color = '#FFFFFF'),
+        text = ~paste(format(n, nsmall = 0, big.mark = ","),' Total Cases'),
+        hoverinfo = 'text',
+        
+        marker = list(colors = c('#c37ef0', "#54c3ff"),
+                      line = list(color = '#FFFFFF', width = 1)),
+        showlegend = FALSE) %>% 
   
   layout(xaxis = list(showgrid = FALSE, 
                       zeroline = FALSE, 
                       showticklabels = FALSE),
-                      yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 ```
 
 ### <b> Daily Cases by Gender </b>
 ```{r}
-daily_genders <- TargetPHU %>% 
+TargetPHU %>% 
   dplyr::filter(!is.na(Accurate_Episode_Date)) %>% 
   dplyr::filter(Client_Gender == "FEMALE" | Client_Gender == "MALE") %>% 
   dplyr::group_by(Accurate_Episode_Date, Client_Gender) %>% 
@@ -904,10 +906,9 @@ daily_genders <- TargetPHU %>%
                                 Client_Gender == "FEMALE" ~ '#c37ef0')) %>%
   dplyr::mutate(HEX = as.character(HEX)) %>% 
   dplyr::arrange(desc(Accurate_Episode_Date)) %>% 
-  data.frame()
+  data.frame() %>% 
 
-plot_ly(data = daily_genders, 
-        x = ~Accurate_Episode_Date, 
+plot_ly(x = ~Accurate_Episode_Date, 
         y = ~n, 
         type = 'bar', 
         color = ~Client_Gender, 
@@ -922,7 +923,17 @@ plot_ly(data = daily_genders,
 
 ### <b> Cumulative Cases by Gender </b> 
 ```{r}
-daily_genders_cum <- daily_genders %>% 
+daily_genders_cum <- TargetPHU %>% 
+  dplyr::filter(!is.na(Accurate_Episode_Date)) %>% 
+  dplyr::filter(Client_Gender == "FEMALE" | Client_Gender == "MALE") %>% 
+  dplyr::group_by(Accurate_Episode_Date, Client_Gender) %>% 
+  dplyr::count(name = "n") %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(HEX = case_when(Client_Gender == "MALE" ~ '#54c3ff', 
+                                Client_Gender == "FEMALE" ~ '#c37ef0')) %>%
+  dplyr::mutate(HEX = as.character(HEX)) %>% 
+  dplyr::arrange(desc(Accurate_Episode_Date)) %>% 
+  data.frame() %>% 
   dplyr::filter(!Accurate_Episode_Date == "2019-12-25") %>% 
   dplyr::arrange(Accurate_Episode_Date)%>% 
   dplyr::group_by(Client_Gender) %>% 
