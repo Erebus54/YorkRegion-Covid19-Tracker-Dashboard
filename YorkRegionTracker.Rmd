@@ -394,10 +394,10 @@ valueBox(fatality_rate_per_capita_K, icon = "ion-stats-bars")
 
 ### Recovery Rate per 100K Population 
 ```{r}
-fatality <- sum(outcomes$/POP)
-fatality_rate_per_capita_K <- as.integer(fatality*100000)
+recovered <- sum(outcomes$Resolved/POP)
+r_rate_per_capita_K <- as.integer(recovered*100000)
 
-valueBox(fatality_rate_per_capita_K, icon = "ion-stats-bars")
+valueBox(format(r_rate_per_capita_K, big.mark = ","), icon = "ion-stats-bars")
 ```
 
 Row {.tabset .tabset-fade}
