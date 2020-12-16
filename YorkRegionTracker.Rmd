@@ -494,6 +494,53 @@ plot_ly(x = ~Accurate_Episode_Date,
 
 ```
 
+
+### <b> Daily Outcomes Composition </b> 
+
+```{r}
+#daily outcome composition 
+outcomes %>% 
+  dplyr::mutate(Total=Reduce("+",.[2:4])) %>% 
+  dplyr::mutate(F_pct = round((Fatal/Total)*100,1), 
+                A_pct = round((Active/Total)*100,1), 
+                R_pct = round((Resolved/Total)*100,1)) %>% 
+  
+  plot_ly(x = ~Accurate_Episode_Date, 
+          y = ~F_pct, 
+          name = "Fatal",
+          type = 'bar', 
+          text = ~paste(Accurate_Episode_Date, "<br>",F_pct, " % Fatal (n = ", Fatal, ")",sep = ""), 
+          hoverinfo = "text", 
+          marker = list(color = '#FF5959')) %>% 
+  
+  add_trace(y = ~R_pct, 
+            type = 'bar', 
+            name = "Resolved", 
+            text = ~paste(Accurate_Episode_Date, "<br>",R_pct, " % Resolved (n = ", Resolved , ")", sep = ""), 
+            hoverinfo = "text", 
+            marker = list(color = '#6EC5E9')) %>% 
+  
+  add_trace(y = ~A_pct, 
+            type = 'bar', 
+            name = "Active", 
+            text = ~paste(Accurate_Episode_Date, "<br>",A_pct, " % Active (n = ", Active, ")", sep = ""), 
+            hoverinfo = "text", 
+            marker = list(color = '#FFC56C')) %>% 
+  
+  
+  layout(title = "",
+         xaxis = list(title = "",  
+                      rangeselector = list(buttons = buttons_time)), 
+         yaxis = list(title = "Frequency (%)",
+                      dtick = 25, 
+                      tick0 = 0.00, 
+                      tickmode = "linear"), 
+         barmode = 'stack',
+         hovermode = "y-unified", 
+         hoverlabel=list(bgcolor="black"),
+         legend = list(title = list(text = '<b> Outcome: </b>')))  
+```
+
 ### <b> Cumulative Outcomes </b> 
 
 ```{r}
@@ -696,10 +743,7 @@ TargetPHU %>%
                 TR_Pct = round((Travel / Total)*100,1),
                 unkn_pct = round((Unknown / Total)*100,1)) %>% 
   #dplyr::select(Accurate_Episode_Date, cc_Pct, ob_Pct, TR_Pct, unkn_pct) %>% 
-
-
-  
-  plot_ly(x = ~Accurate_Episode_Date, 
+plot_ly(x = ~Accurate_Episode_Date, 
           y = ~cc_Pct, 
           name = "Close Contact",
           type = 'bar', 
