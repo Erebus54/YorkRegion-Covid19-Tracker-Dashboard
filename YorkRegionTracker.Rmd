@@ -161,7 +161,7 @@ valueBox(format(round(as.numeric(nrow(obValue)), 0), nsmall=0, big.mark=","), ic
 ### Travel Related Cases
 ```{r}
 travelCases <- TargetPHU %>% 
-  dplyr::filter(Case_AcquisitionInfo == "Travel") 
+  dplyr::filter(Case_AcquisitionInfo == "TRAVEL") 
 
 valueBox(nrow(travelCases), icon = "ion-plane")
 ```
@@ -190,7 +190,6 @@ dailyPHU <- dailyPHU %>%
                 diff_growth = Cases - lag(Cases), 
                 growth_rate_pct = round((diff_growth/d_diff)/Cases * 100, 2)
   )
-
 ```
 
 
@@ -198,7 +197,6 @@ dailyPHU <- dailyPHU %>%
 ```{r}
 TargetPHU %>% 
   dplyr::select(Accurate_Episode_Date) %>% 
-  dplyr::arrange(Accurate_Episode_Date) %>% 
   dplyr::group_by(Accurate_Episode_Date) %>% 
   dplyr::count(name = "Cases") %>% 
   dplyr::ungroup() %>% 
@@ -301,8 +299,6 @@ plot_ly(x = ~Accurate_Episode_Date,
 ### <b> Rolling Median </b>
 
 ```{r}
-
-
 dailyPHU %>% 
   dplyr::select(Accurate_Episode_Date, Cases) %>% 
   dplyr::mutate(Rm7 = round(zoo::rollmean(Cases, k = 7, fill = NA),0),
@@ -595,13 +591,15 @@ Case Acquisition
 
 ```{r}
 acqBreakdown <- TargetPHU %>% 
-  dplyr::mutate(Case_AcquisitionInfo = case_when(
-    .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
-    .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
-    .$Case_AcquisitionInfo == "Travel" ~ "Travel",
-    .$Case_AcquisitionInfo == "No known epi link" ~ "Unknown",
-    .$Case_AcquisitionInfo == "Missing Information" ~ "Unknown",
-    .$Case_AcquisitionInfo == "Unspecified epi link" ~ "Unknown")) %>% 
+  
+    dplyr::mutate(Case_AcquisitionInfo = case_when(
+      .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
+      .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
+      .$Case_AcquisitionInfo == "TRAVEL" ~ "Travel",
+      .$Case_AcquisitionInfo == "NO KNOWN EPI LINK" ~ "Unknown",
+      .$Case_AcquisitionInfo == "MISSING INFORMATION" ~ "Unknown",
+      .$Case_AcquisitionInfo == "UNSPECIFIED EPI LINK" ~ "Unknown")) %>%
+  
   dplyr::group_by(Case_AcquisitionInfo) %>% 
   dplyr::summarise(n = n(), .groups = 'keep') %>% 
   dplyr::ungroup() %>% 
@@ -616,7 +614,7 @@ Row
 
 ### Travel Related Cases 
 ```{r}
-TRC <- round(sum(TargetPHU$Case_AcquisitionInfo == "Travel")/nrow(TargetPHU)*100, 1)
+TRC <- round(sum(TargetPHU$Case_AcquisitionInfo == "TRAVEL")/nrow(TargetPHU)*100, 1)
 valueBox(paste(TRC, "%"), icon = "ion-plane")
 ```
 
@@ -643,13 +641,15 @@ Row {.tabset .tabset-fade}
 ### <b> Breakdown </b> 
 ```{r}
 TargetPHU %>% 
-  dplyr::mutate(Case_AcquisitionInfo = case_when(
-    .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
-    .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
-    .$Case_AcquisitionInfo == "Travel" ~ "Travel",
-    .$Case_AcquisitionInfo == "No known epi link" ~ "Unknown",
-    .$Case_AcquisitionInfo == "Missing Information" ~ "Unknown",
-    .$Case_AcquisitionInfo == "Unspecified epi link" ~ "Unknown")) %>% 
+  
+    dplyr::mutate(Case_AcquisitionInfo = case_when(
+      .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
+      .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
+      .$Case_AcquisitionInfo == "TRAVEL" ~ "Travel",
+      .$Case_AcquisitionInfo == "NO KNOWN EPI LINK" ~ "Unknown",
+      .$Case_AcquisitionInfo == "MISSING INFORMATION" ~ "Unknown",
+      .$Case_AcquisitionInfo == "UNSPECIFIED EPI LINK" ~ "Unknown")) %>%
+  
   dplyr::group_by(Case_AcquisitionInfo) %>% 
   dplyr::summarise(n = n(), .groups = 'keep') %>% 
   dplyr::ungroup() %>% 
@@ -684,13 +684,15 @@ plot_ly(labels = ~Case_AcquisitionInfo,
 ```{r}
 TargetPHU %>% 
   dplyr::select(Row_ID, Accurate_Episode_Date, Case_AcquisitionInfo) %>% 
-  dplyr::mutate(Case_AcquisitionInfo = case_when(
-    .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
-    .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
-    .$Case_AcquisitionInfo == "Travel" ~ "Travel",
-    .$Case_AcquisitionInfo == "No known epi link" ~ "Unknown",
-    .$Case_AcquisitionInfo == "Missing Information" ~ "Unknown",
-    .$Case_AcquisitionInfo == "Unspecified epi link" ~ "Unknown")) %>%
+  
+    dplyr::mutate(Case_AcquisitionInfo = case_when(
+      .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
+      .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
+      .$Case_AcquisitionInfo == "TRAVEL" ~ "Travel",
+      .$Case_AcquisitionInfo == "NO KNOWN EPI LINK" ~ "Unknown",
+      .$Case_AcquisitionInfo == "MISSING INFORMATION" ~ "Unknown",
+      .$Case_AcquisitionInfo == "UNSPECIFIED EPI LINK" ~ "Unknown")) %>%
+  
   group_by(Accurate_Episode_Date, Case_AcquisitionInfo) %>% 
   summarise(count = n(), .groups = 'keep') %>%
   dplyr::ungroup() %>% 
@@ -722,14 +724,16 @@ plot_ly(x = ~Accurate_Episode_Date,
 
 ```{r}
 TargetPHU %>% 
-  dplyr::select(Row_ID, Accurate_Episode_Date, Case_AcquisitionInfo) %>% 
-  dplyr::mutate(Case_AcquisitionInfo = case_when(
-    .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
-    .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
-    .$Case_AcquisitionInfo == "Travel" ~ "Travel",
-    .$Case_AcquisitionInfo == "No known epi link" ~ "Unknown",
-    .$Case_AcquisitionInfo == "Missing Information" ~ "Unknown",
-    .$Case_AcquisitionInfo == "Unspecified epi link" ~ "Unknown")) %>%
+  dplyr::select(Row_ID, Accurate_Episode_Date, Case_AcquisitionInfo) %>%
+  
+    dplyr::mutate(Case_AcquisitionInfo = case_when(
+      .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
+      .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
+      .$Case_AcquisitionInfo == "TRAVEL" ~ "Travel",
+      .$Case_AcquisitionInfo == "NO KNOWN EPI LINK" ~ "Unknown",
+      .$Case_AcquisitionInfo == "MISSING INFORMATION" ~ "Unknown",
+      .$Case_AcquisitionInfo == "UNSPECIFIED EPI LINK" ~ "Unknown")) %>%
+  
   group_by(Accurate_Episode_Date, Case_AcquisitionInfo) %>% 
   summarise(count = n(), .groups = 'keep') %>%
   dplyr::ungroup() %>% 
@@ -790,14 +794,16 @@ plot_ly(x = ~Accurate_Episode_Date,
 ### <b> Overall Acquisitions (Linear) </b> 
 ```{r cumacq}
 TargetPHU %>% 
-  dplyr::select(Row_ID,Case_Reported_Date, Case_AcquisitionInfo) %>% 
-  dplyr::mutate(Case_AcquisitionInfo = case_when(
-    .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
-    .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
-    .$Case_AcquisitionInfo == "Travel" ~ "Travel",
-    .$Case_AcquisitionInfo == "No known epi link" ~ "Unknown",
-    .$Case_AcquisitionInfo == "Missing Information" ~ "Unknown",
-    .$Case_AcquisitionInfo == "Unspecified epi link" ~ "Unknown")) %>% 
+  dplyr::select(Row_ID,Case_Reported_Date, Case_AcquisitionInfo) %>%
+  
+    dplyr::mutate(Case_AcquisitionInfo = case_when(
+      .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
+      .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
+      .$Case_AcquisitionInfo == "TRAVEL" ~ "Travel",
+      .$Case_AcquisitionInfo == "NO KNOWN EPI LINK" ~ "Unknown",
+      .$Case_AcquisitionInfo == "MISSING INFORMATION" ~ "Unknown",
+      .$Case_AcquisitionInfo == "UNSPECIFIED EPI LINK" ~ "Unknown")) %>%
+  
   dplyr::group_by(Case_Reported_Date, Case_AcquisitionInfo) %>% 
   dplyr::summarise(count = n(), .groups = 'keep') %>% 
   dplyr::ungroup() %>% 
@@ -848,13 +854,15 @@ plot_ly(x = ~Case_Reported_Date,
 ```{r}
 TargetPHU %>% 
   dplyr::select(Row_ID,Case_Reported_Date, Case_AcquisitionInfo) %>% 
-  dplyr::mutate(Case_AcquisitionInfo = case_when(
-    .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
-    .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
-    .$Case_AcquisitionInfo == "Travel" ~ "Travel",
-    .$Case_AcquisitionInfo == "No known epi link" ~ "Unknown",
-    .$Case_AcquisitionInfo == "Missing Information" ~ "Unknown",
-    .$Case_AcquisitionInfo == "Unspecified epi link" ~ "Unknown")) %>% 
+  
+    dplyr::mutate(Case_AcquisitionInfo = case_when(
+      .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
+      .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
+      .$Case_AcquisitionInfo == "TRAVEL" ~ "Travel",
+      .$Case_AcquisitionInfo == "NO KNOWN EPI LINK" ~ "Unknown",
+      .$Case_AcquisitionInfo == "MISSING INFORMATION" ~ "Unknown",
+      .$Case_AcquisitionInfo == "UNSPECIFIED EPI LINK" ~ "Unknown")) %>%
+  
   dplyr::group_by(Case_Reported_Date, Case_AcquisitionInfo) %>% 
   dplyr::summarise(count = n(), .groups = 'keep') %>% 
   dplyr::ungroup() %>% 
@@ -908,13 +916,13 @@ TargetPHU %>%
   dplyr::select(Row_ID, Accurate_Episode_Date, 
                 Case_AcquisitionInfo) %>% 
   
-  dplyr::mutate(Case_AcquisitionInfo = case_when(
-    .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
-    .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
-    .$Case_AcquisitionInfo == "Travel" ~ "Travel",
-    .$Case_AcquisitionInfo == "No known epi link" ~ "Unknown",
-    .$Case_AcquisitionInfo == "Missing Information" ~ "Unknown",
-    .$Case_AcquisitionInfo == "Unspecified epi link" ~ "Unknown")) %>% 
+    dplyr::mutate(Case_AcquisitionInfo = case_when(
+      .$Case_AcquisitionInfo == "OB" ~ "Outbreak Related", 
+      .$Case_AcquisitionInfo == "CC" ~ "Close Contact",
+      .$Case_AcquisitionInfo == "TRAVEL" ~ "Travel",
+      .$Case_AcquisitionInfo == "NO KNOWN EPI LINK" ~ "Unknown",
+      .$Case_AcquisitionInfo == "MISSING INFORMATION" ~ "Unknown",
+      .$Case_AcquisitionInfo == "UNSPECIFIED EPI LINK" ~ "Unknown")) %>%
   
   dplyr::group_by(Accurate_Episode_Date, 
                   Case_AcquisitionInfo) %>% 
