@@ -23,7 +23,7 @@ target <- "York Region Public Health Services"
 
 casestatus <- casestatus %>% 
   dplyr::filter(Reporting_PHU == target) %>% 
-  dplyr::arrange(Case_Reported_Date) %>% 
+  dplyr::arrange(Case_Reported_Date) 
 
 #create .csv for each date of dataset
 dirPath <- paste(getwd(), "/datasets/", sep = "")
