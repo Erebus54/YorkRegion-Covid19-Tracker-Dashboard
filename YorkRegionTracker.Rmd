@@ -1133,6 +1133,39 @@ plot_ly(x = ~Accurate_Episode_Date,
          legend=list(title=list(text='<b> Age Group </b>'))) 
 ```
 
+### <b> Overall by Age Group </b>
+
+```{r csumbyAgeLog}
+TargetPHU %>% 
+  dplyr::filter(!is.na(Accurate_Episode_Date)) %>% 
+  dplyr::filter(!Accurate_Episode_Date == "2019-12-25") %>% 
+  dplyr::group_by(Accurate_Episode_Date, Age_Group) %>% 
+  dplyr::count(name = "n") %>% 
+  dplyr::ungroup() %>% 
+  data.frame() %>% 
+  dplyr::mutate(Age_Group = ordered(Age_Group, levels = c("<20", "20s", "30s", "40s", "50s", "60s", "70s", "80s", "90s"))) %>% 
+  dplyr::arrange(Accurate_Episode_Date, Age_Group) %>% 
+  dplyr::group_by(Age_Group) %>%
+  dplyr::mutate(csum = cumsum(n)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::select(Accurate_Episode_Date, Age_Group, csum) %>% 
+  data.frame() %>% 
+
+plot_ly(x = ~Accurate_Episode_Date, y = ~csum, 
+        type = 'scatter', mode = 'lines', fill = 'tozeroy', 
+        color = ~Age_Group, 
+        colors = "Paired", 
+        text = ~paste(Accurate_Episode_Date, "<br>",
+                      "Age Group: ", Age_Group, "<br>",
+                      format(csum, big.mark = ","), " Total Cases to Date", sep = ""), 
+        hoverinfo = "text") %>% 
+  
+  layout(hovermode = 'x-unified', 
+         xaxis = list(title = "", rangeselector = list(buttons = buttons_time)), 
+         yaxis = list(title = "Cumulative Cases (Log)", type = "log"), 
+         legend=list(title=list(text='<b> Age Group: </b>')))
+```
+
 ### <b> Age Proportion </b> 
 ```{r}
 TargetPHU %>% 
@@ -1234,40 +1267,6 @@ TargetPHU %>%
          hoverlabel=list(bgcolor="black"),
          legend = list(title = list(text = '<b> Age: </b>')))   
 
-```
-
-
-### <b> Overall by Age Group </b>
-
-```{r csumbyAgeLog}
-TargetPHU %>% 
-  dplyr::filter(!is.na(Accurate_Episode_Date)) %>% 
-  dplyr::filter(!Accurate_Episode_Date == "2019-12-25") %>% 
-  dplyr::group_by(Accurate_Episode_Date, Age_Group) %>% 
-  dplyr::count(name = "n") %>% 
-  dplyr::ungroup() %>% 
-  data.frame() %>% 
-  dplyr::mutate(Age_Group = ordered(Age_Group, levels = c("<20", "20s", "30s", "40s", "50s", "60s", "70s", "80s", "90s"))) %>% 
-  dplyr::arrange(Accurate_Episode_Date, Age_Group) %>% 
-  dplyr::group_by(Age_Group) %>%
-  dplyr::mutate(csum = cumsum(n)) %>% 
-  dplyr::ungroup() %>% 
-  dplyr::select(Accurate_Episode_Date, Age_Group, csum) %>% 
-  data.frame() %>% 
-
-plot_ly(x = ~Accurate_Episode_Date, y = ~csum, 
-        type = 'scatter', mode = 'lines', fill = 'tozeroy', 
-        color = ~Age_Group, 
-        colors = "Paired", 
-        text = ~paste(Accurate_Episode_Date, "<br>",
-                      "Age Group: ", Age_Group, "<br>",
-                      format(csum, big.mark = ","), " Total Cases to Date", sep = ""), 
-        hoverinfo = "text") %>% 
-  
-  layout(hovermode = 'x-unified', 
-         xaxis = list(title = "", rangeselector = list(buttons = buttons_time)), 
-         yaxis = list(title = "Cumulative Cases (Log)", type = "log"), 
-         legend=list(title=list(text='<b> Age Group: </b>')))
 ```
 
 ### <b> Gender Breakdown </b>
