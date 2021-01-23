@@ -215,7 +215,7 @@ plot_ly(x = ~Accurate_Episode_Date,
          yaxis = list(title = 'New Cases (n)'),
          xaxis = list(title = ' ', 
                       rangeselector = list(buttons = buttons_time)),
-         hovermode = "x unified", 
+         hovermode = "x-unified", 
          
          hoverlabel=list(bgcolor="#2858a6"), 
          
@@ -240,7 +240,7 @@ fig <- plot_ly(x = ~dailyPHU$Accurate_Episode_Date,
 fig <- fig %>% layout(xaxis = list(title = '', 
                                    rangeselector = list(buttons = buttons_time)),
                       yaxis = list(title = 'Cumulative Case'), 
-                      hovermode = "x unified", 
+                      hovermode = "x-unified", 
                       hoverlabel=list(bgcolor="black"), 
                       
                       paper_bgcolor='transparent')
@@ -291,7 +291,7 @@ plot_ly(x = ~Accurate_Episode_Date,
   layout(title = "",
          xaxis = list(title = "", rangeselector = list(buttons = buttons_time)), 
          yaxis = list(title = "New Cases"), 
-         hovermode = "x unified", 
+         hovermode = "x-unified", 
          hoverlabel=list(bgcolor="black", bordercolor = "white"), 
          legend=list(title=list(text='<b> Moving Averages: </b>')))
 ```
@@ -332,7 +332,7 @@ dailyPHU %>%
          xaxis = list(title = " ", rangeselector = list(
            buttons = buttons_time)), 
          yaxis = list(title = "New Cases"), 
-         hovermode = "x unified", 
+         hovermode = "x-unified", 
          legend=list(title=list(text='<b> Rolling Medians </b>'))) 
 ```
 
@@ -456,7 +456,7 @@ plot_ly(x = ~Accurate_Episode_Date,
   layout(title = "", 
          xaxis = list(title = '', rangeselector = list(buttons = buttons_time)),
          yaxis = list(title = 'Daily Outcomes (n)'),
-         hovermode = "x unified",
+         hovermode = "x-unified",
          barmode = 'stack', 
          legend=list(title=list(text='<b> Outcome: </b>')))
 ```
@@ -496,7 +496,7 @@ plot_ly(x = ~Accurate_Episode_Date,
                       dtick = 25, 
                       tick0 = 0, 
                       tickmode = "linear"), 
-         hovermode = "x unified",
+         hovermode = "x-unified",
          barmode = 'stack', 
          legend=list(title=list(text='<b> Daily Outcomes: </b>'))) 
 
@@ -595,7 +595,7 @@ TargetPHU %>%
            buttons = buttons_time)),
          
          yaxis = list(title = 'Cumulative (Log)', type = "log"), 
-         hovermode = "x unified",
+         hovermode = "x-unified",
          barmode = 'stack', 
          legend=list(title=list(text='<b> Cumulative Outcomes </b>'))) 
 ```
@@ -645,7 +645,7 @@ TargetPHU %>%
            buttons = buttons_time)),
          
          yaxis = list(title = 'per Capita Rate', type = "log"), 
-         hovermode = "x unified",
+         hovermode = "x-unified",
          barmode = 'stack', 
          legend=list(title=list(text='<b> Rates per Capita (1M): </b>')))
 ```
@@ -788,7 +788,7 @@ TargetPHU %>%
                       title = '', 
                       rangeselector = list(buttons = buttons_time)),
          yaxis = list(title = 'Frequency (n)'), 
-         hovermode = "x unified",
+         hovermode = "x-unified",
          barmode = 'stack',
          legend=list(title=list(text='<b> Case Acquisition Type: </b>'))) 
 ```
