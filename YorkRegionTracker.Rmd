@@ -4,7 +4,7 @@ output:
   flexdashboard::flex_dashboard:
     orientation: rows
     theme: cosmo
-runtime: shiny
+runtime: shiny_prerendered
 ---
 <style>
 .navbar {
@@ -109,7 +109,6 @@ Row
 -----------------------------------------------------------------------
 ### Total Cumulative Cases 
 ```{r}
-
 #use this to change icons https://ionicons.com/v2/cheatsheet.html
 cCases <- paste(format(round(as.numeric(nrow(TargetPHU)), 0), nsmall=0, big.mark=",")  # 1,000.6
 )
@@ -128,7 +127,6 @@ valueBox(paste("+", todays_cases, sep = ""), icon = "ion-android-person-add")
 
 ### Rate per 100K Population 
 ```{r}
-
 # src: https://www12.statcan.gc.ca/census-recensement/2016/dp-pd/prof/details/page.cfm?Lang=E&Geo1=CD&Code1=3519&Geo2=PR&Code2=35&SearchText=York&SearchType=Begins&SearchPR=01&B1=All&GeoLevel=PR&GeoCode=3519&TABID=1&type=0
 
 POP <- 1109909
@@ -194,7 +192,7 @@ dailyPHU <- dailyPHU %>%
 
 
 ### <b> Daily Cases </b> 
-```{r}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   dplyr::select(Accurate_Episode_Date) %>% 
   dplyr::group_by(Accurate_Episode_Date) %>% 
@@ -225,8 +223,7 @@ plot_ly(x = ~Accurate_Episode_Date,
 
 ### <b> The Curve - Linear Scale </b>
 
-```{r}
-
+```{r, context="render", echo=FALSE}
 fig <- plot_ly(x = ~dailyPHU$Accurate_Episode_Date, 
                y = ~dailyPHU$csum, 
                type = 'scatter', mode = 'none', 
@@ -249,7 +246,7 @@ fig
 
 ### <b> The Curve - Logarithmic Scale </b>
 
-```{r}
+```{r, context="render", echo=FALSE}
 fig <- fig %>% layout(yaxis = list(type = "log"))
 fig <- fig %>% layout(xaxis = list(title = ""),
                       yaxis = list (title = "Cumulative Case Counts (Log)"))
@@ -258,7 +255,7 @@ fig
 
 ### <b> Rolling Averages </b>
 
-```{r}
+```{r, context="render", echo=FALSE}
 #calculating rolling average 
 dailyPHU %>% 
   dplyr::select(Accurate_Episode_Date, Cases) %>% 
@@ -298,7 +295,7 @@ plot_ly(x = ~Accurate_Episode_Date,
 
 ### <b> Rolling Median </b>
 
-```{r}
+```{r, context="render", echo=FALSE}
 dailyPHU %>% 
   dplyr::select(Accurate_Episode_Date, Cases) %>% 
   dplyr::mutate(Rm7 = round(zoo::rollmean(Cases, k = 7, fill = NA),0),
@@ -397,7 +394,7 @@ valueBox(format(r_rate_per_capita_K, big.mark = ","), icon = "ion-stats-bars")
 Row {.tabset .tabset-fade}
 -------------------------------------
 ### <b> Outcome Breakdown </b> 
-```{r}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   dplyr::group_by(Outcome1) %>% 
   dplyr::summarise(n = n(), .groups = 'keep') %>%
@@ -427,7 +424,7 @@ plot_ly(labels = ~Outcome, values = ~n, type = 'pie',
 
 
 ### <b> Daily Outcomes </b> 
-```{r}
+```{r, context="render", echo=FALSE}
 #Cases by Outcome 
 
 TargetPHU %>% 
@@ -462,7 +459,7 @@ plot_ly(x = ~Accurate_Episode_Date,
 ```
 
 ### <b> Daily Outcome Changes </b>
-```{r}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   dplyr::select(Row_ID,Accurate_Episode_Date, Outcome1) %>% 
   dplyr::group_by(Accurate_Episode_Date, Outcome1) %>% 
@@ -499,13 +496,12 @@ plot_ly(x = ~Accurate_Episode_Date,
          hovermode = "x-unified",
          barmode = 'stack', 
          legend=list(title=list(text='<b> Daily Outcomes: </b>'))) 
-
 ```
 
 
 ### <b> Daily Outcome Composition </b> 
 
-```{r}
+```{r, context="render", echo=FALSE}
 #daily outcome composition 
 TargetPHU %>% 
   dplyr::select(Row_ID,Accurate_Episode_Date, Outcome1) %>% 
@@ -557,7 +553,7 @@ TargetPHU %>%
 
 ### <b> Cumulative Outcomes </b> 
 
-```{r}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   dplyr::select(Row_ID,Accurate_Episode_Date, Outcome1) %>% 
   dplyr::filter(!Accurate_Episode_Date == "2019-12-25") %>% 
@@ -602,7 +598,7 @@ TargetPHU %>%
 
 ### <b> Outcomes per Capita </b>
 
-```{r}
+```{r, context="render", echo=FALSE}
 # Per Capita Rates 
 TargetPHU %>% 
   dplyr::select(Row_ID,Accurate_Episode_Date, Outcome1) %>% 
@@ -705,7 +701,7 @@ Row {.tabset .tabset-fade}
 -------------------------------------
 
 ### <b> Breakdown </b> 
-```{r}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   
     dplyr::mutate(Case_AcquisitionInfo = case_when(
@@ -748,7 +744,7 @@ plot_ly(labels = ~Case_AcquisitionInfo,
 
 ### <b> Daily Acquisitions </b> 
 
-```{r}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   dplyr::select(Accurate_Episode_Date, Case_AcquisitionInfo) %>% 
   
@@ -795,7 +791,7 @@ TargetPHU %>%
 
 ### <b> Acquisition Proportions </b> 
 
-```{r}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   dplyr::select(Accurate_Episode_Date, Case_AcquisitionInfo) %>%
   
@@ -872,7 +868,7 @@ TargetPHU %>%
 
 
 ### <b> Overall Acquisitions (Linear) </b> 
-```{r cumacq}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   dplyr::select(Row_ID,Case_Reported_Date, Case_AcquisitionInfo) %>%
   
@@ -933,7 +929,7 @@ plot_ly(x = ~Case_Reported_Date,
 ```
 
 ### <b> Overall Acquisitions (Log) </b>
-```{r}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   dplyr::select(Row_ID,Case_Reported_Date, Case_AcquisitionInfo) %>% 
   
@@ -995,7 +991,7 @@ plot_ly(x = ~Case_Reported_Date,
 
 ### <b> Heatmap </b> 
 
-```{r}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   dplyr::select(Row_ID, Accurate_Episode_Date, 
                 Case_AcquisitionInfo) %>% 
@@ -1052,7 +1048,7 @@ Row {.tabset .tabset-fade}
 -------------------------------------
 
 ### <b> Age Breakdown </b> 
-```{r}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   dplyr::group_by(Age_Group) %>% 
   dplyr::summarise(n = n(), .groups = 'keep') %>% 
@@ -1079,7 +1075,7 @@ plot_ly(labels = ~Age_Group,
 ```
 
 ### <b> Age Treemap </b> 
-```{r}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   dplyr::group_by(Age_Group) %>% 
   dplyr::summarise(n = n(), .groups = 'keep') %>% 
@@ -1105,7 +1101,7 @@ TargetPHU %>%
 
 ### <b> Daily Cases by Age </b>
 
-```{r}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   dplyr::filter(!is.na(Accurate_Episode_Date)) %>% 
   dplyr::filter(!Accurate_Episode_Date == "2019-12-25") %>% 
@@ -1135,7 +1131,7 @@ plot_ly(x = ~Accurate_Episode_Date,
 
 ### <b> Overall by Age Group </b>
 
-```{r csumbyAgeLog}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   dplyr::filter(!is.na(Accurate_Episode_Date)) %>% 
   dplyr::filter(!Accurate_Episode_Date == "2019-12-25") %>% 
@@ -1167,7 +1163,7 @@ plot_ly(x = ~Accurate_Episode_Date, y = ~csum,
 ```
 
 ### <b> Age Proportion </b> 
-```{r}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   dplyr::filter(!is.na(Accurate_Episode_Date)) %>% 
   dplyr::filter(!Accurate_Episode_Date == "2019-12-25") %>%
@@ -1270,7 +1266,7 @@ TargetPHU %>%
 ```
 
 ### <b> Gender Breakdown </b>
-```{r}
+```{r, context="render", echo=FALSE}
 #breakdown by gender 
 TargetPHU %>%
   dplyr::filter(Client_Gender == "FEMALE" | Client_Gender == "MALE") %>% 
@@ -1297,7 +1293,7 @@ plot_ly(labels = ~Client_Gender, values = ~n, type = 'pie',
 ```
 
 ### <b> Daily Cases by Gender </b>
-```{r}
+```{r, context="render", echo=FALSE}
 TargetPHU %>% 
   dplyr::filter(!is.na(Accurate_Episode_Date)) %>% 
   dplyr::filter(Client_Gender == "FEMALE" | Client_Gender == "MALE") %>% 
@@ -1323,7 +1319,7 @@ plot_ly(x = ~Accurate_Episode_Date,
 ```
 
 ### <b> Overall by Gender (Linear) </b> 
-```{r}
+```{r, context="render", echo=FALSE}
 daily_genders_cum <- TargetPHU %>% 
   dplyr::filter(!is.na(Accurate_Episode_Date)) %>% 
   dplyr::filter(Client_Gender == "FEMALE" | Client_Gender == "MALE") %>% 
@@ -1367,7 +1363,7 @@ plot_ly(females, x = ~Accurate_Episode_Date,  y = ~Total,  type = 'scatter', mod
 
 ### <b> Overall by Gender (Log) </b> 
 
-```{r}
+```{r, context="render", echo=FALSE}
 plot_ly(females, x = ~Accurate_Episode_Date,  y = ~Total,  type = 'scatter', mode = 'none', name = 'FEMALE', fill = 'tozeroy', 
         fillcolor = 'rgba(195, 126, 240, 0.7)', 
         text = ~paste("FEMALE:", format(Total, nsmall = 0, big.mark = ","), sep = " "), 
