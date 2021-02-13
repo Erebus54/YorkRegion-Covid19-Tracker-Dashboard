@@ -1372,7 +1372,6 @@ About this Site
 #### <b> Code </b>
 Codebase and dataset used to generate this web application are available on [Github](https://github.com/Erebus54/YorkRegion-Covid19-Tracker-Dashboard).
 
-
 #### <b> Sources </b> 
 
 **Status of COVID-19 cases in Ontario** : [Open Data Ontario](https://data.ontario.ca/en/dataset/confirmed-positive-cases-of-covid-19-in-ontario), updated daily, which presents a breakdown by region, case status, age range of cases 
