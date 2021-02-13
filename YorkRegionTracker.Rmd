@@ -1165,20 +1165,21 @@ plot_ly(x = ~Accurate_Episode_Date, y = ~csum,
 ### <b> Age Proportion </b> 
 ```{r, context="render", echo=FALSE}
 TargetPHU %>% 
+  dplyr::select(Accurate_Episode_Date, Age_Group) %>% 
   dplyr::filter(!is.na(Accurate_Episode_Date)) %>% 
   dplyr::filter(!Accurate_Episode_Date == "2019-12-25") %>%
-  dplyr::filter(!Age_Group == "") %>% 
+  # Adding a month-year column 
   dplyr::mutate(Month_Yr = format(as.Date(Accurate_Episode_Date), "%Y-%m")) %>% 
   dplyr::group_by(Month_Yr, Age_Group) %>% 
+  # For Each month-year and age group, count the number of cases (rows)
   dplyr::count(name = "n") %>% 
   dplyr::ungroup() %>% 
   data.frame() %>% 
-  dplyr::mutate(Age_Group = ordered(Age_Group, levels = c("<20", "20s", "30s", "40s", "50s", "60s", "70s", "80s", "90s"))) %>% 
+  dplyr::mutate(Age_Group = ordered(Age_Group, levels = c("<20", "20s", "30s", "40s", "50s", "60s", "70s", "80s", "90+", "UNKNOWN"))) %>% 
   tidyr::pivot_wider(names_from = Age_Group, 
                      names_prefix = "AG", 
                      values_from = n,
                      values_fill = 0) %>%
-
   mutate(Total=Reduce("+",.[2:10]), 
          lessTwenty_Pct = round((`AG<20`/Total)*100,1), 
          twenty_Pct = round((`AG20s`/Total)*100,1), 
@@ -1188,16 +1189,16 @@ TargetPHU %>%
          sixty_Pct = round((`AG60s`/Total)*100,1),
          seventy_Pct = round((`AG70s`/Total)*100,1),
          eighty_Pct = round((`AG80s`/Total)*100,1),
-         ninety_Pct = round((`AG90s`/Total)*100,1)) %>% 
+         ninety_Pct = round((`AG90+`/Total)*100,1)) %>% 
   
-  data.frame() %>% 
+  data.frame() %>%
   
   #RColorBrewer::brewer.pal(n = 9, name = "Paired")
   plot_ly(x = ~Month_Yr, 
           y = ~ninety_Pct, 
           name = "90s",
           type = 'bar', 
-          text = ~paste("90s", "<br>", ninety_Pct, "%",  " (n = ", `AG90s`, ")",sep = ""), 
+          text = ~paste("90s", "<br>", ninety_Pct, "%",  " (n = ", `AG90.`, ")",sep = ""), 
           hoverinfo = "text", 
           marker = list(color = '#CAB2D6')) %>% 
   
@@ -1261,8 +1262,7 @@ TargetPHU %>%
          hovermode = "y-unified", 
          barmode = 'stack', 
          hoverlabel=list(bgcolor="black"),
-         legend = list(title = list(text = '<b> Age: </b>')))   
-
+         legend = list(title = list(text = '<b> Age: </b>')))
 ```
 
 ### <b> Gender Breakdown </b>
@@ -1292,31 +1292,6 @@ plot_ly(labels = ~Client_Gender, values = ~n, type = 'pie',
          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 ```
 
-### <b> Daily Cases by Gender </b>
-```{r, context="render", echo=FALSE}
-TargetPHU %>% 
-  dplyr::filter(!is.na(Accurate_Episode_Date)) %>% 
-  dplyr::filter(Client_Gender == "FEMALE" | Client_Gender == "MALE") %>% 
-  dplyr::group_by(Accurate_Episode_Date, Client_Gender) %>% 
-  dplyr::count(name = "n") %>% 
-  dplyr::ungroup() %>% 
-  dplyr::mutate(HEX = case_when(Client_Gender == "MALE" ~ '#54c3ff', 
-                                Client_Gender == "FEMALE" ~ '#c37ef0')) %>%
-  dplyr::mutate(HEX = as.character(HEX)) %>% 
-  dplyr::arrange(desc(Accurate_Episode_Date)) %>% 
-  data.frame() %>% 
-
-plot_ly(x = ~Accurate_Episode_Date, 
-        y = ~n, 
-        type = 'bar', 
-        color = ~Client_Gender, 
-        colors = ~HEX) %>% 
-  
-  layout(barmode = "stack", 
-         hovermode = 'x-unified', 
-         xaxis = list(title = ""), 
-         yaxis = list(title = "New Cases")) 
-```
 
 ### <b> Overall by Gender (Linear) </b> 
 ```{r, context="render", echo=FALSE}
