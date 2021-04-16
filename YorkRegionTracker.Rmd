@@ -49,8 +49,9 @@ library(data.table)
 
 library(plotly)
 
-casestatus <- fread("./datasets/casestatus.csv", encoding = 'UTF-8',data.table = F)
+#casestatus <- fread("./datasets/casestatus.csv", encoding = 'UTF-8',data.table = F)
 
+casestatus <- readRDS("datasets/casestatus.rds")
 casestatus$Reporting_PHU <- trimws(casestatus$Reporting_PHU)
 casestatus$Case_AcquisitionInfo <- trimws(casestatus$Case_AcquisitionInfo)
 

@@ -28,14 +28,14 @@ casestatus <- casestatus %>%
 #create .csv for each date of dataset
 dirPath <- paste(getwd(), "/datasets/", sep = "")
 
-#Delete files if exists 
-do.call(file.remove, list(list.files(dirPath, full.names = TRUE)))
-fileName = paste(dirPath, 'casestatus.csv',sep = '')
-#Write Case Status File 
-write.csv(casestatus, 
-          file = fileName, 
-          fileEncoding = 'UTF-8', 
-          row.names = F)
+
+fileName = paste(dirPath, 'casestatus.rds',sep = '')
+
+
+
+#Write Case Status File
+saveRDS(casestatus, file = fileName)
+
 
 print(paste("casestatus.csv has been dowloaded",
             nrow(casestatus), "Rows x ", ncol(casestatus), "Columns",  
